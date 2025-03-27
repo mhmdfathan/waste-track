@@ -17,7 +17,7 @@ interface IappProps {
 
 export function BlogPostCard({ data }: IappProps) {
   return (
-    <div className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md transition-all hover:shadow-lg">
+    <div className="group relative overflow-hidden rounded-lg border border-primary/20 bg-card shadow-md transition-all hover:shadow-lg">
       <Link href={`/post/${data.id}`} className="block w-full h-full">
         <div className="relative h-48 w-full overflow-hidden">
           <Image
@@ -28,16 +28,16 @@ export function BlogPostCard({ data }: IappProps) {
           />
         </div>
         <div className="p-4">
-          <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <h3 className="mb-2 text-lg font-semibold text-primary">
             {data.title}
           </h3>
-          <p className="mb-4 text-sm text-gray-600 line-clamp-2">
+          <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
             {data.content}
           </p>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="relative size-8 overflow-hidden rounded-full">
+              <div className="relative size-8 overflow-hidden rounded-full border border-secondary/20">
                 <Image
                   src={data.authorImage}
                   alt={data.authorName}
@@ -45,11 +45,11 @@ export function BlogPostCard({ data }: IappProps) {
                   className="object-cover"
                 />
               </div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-secondary">
                 {data.authorName}
               </p>
             </div>
-            <time className="text-xs text-gray-500">
+            <time className="text-xs text-muted-foreground">
               {new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
                 month: 'short',
