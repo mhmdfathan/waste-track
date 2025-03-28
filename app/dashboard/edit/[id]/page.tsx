@@ -13,12 +13,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { prisma } from '@/app/utils/db';
 import { notFound } from 'next/navigation';
 
-export default async function EditBlogRoute({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const { id } = params;
+type Params = Promise<{ id: string }>;
+
+export default async function IdPage({ params }: { params: Params }) {
+  const { id } = await params;
 
   if (!id) {
     notFound();
