@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { Navbar } from '@/components/general/Navbar';
+import Navbar from '@/components/general/Navbar';
 import { AuthProvider } from '@/components/general/AuthProvider';
 
 const geistSans = Geist({
@@ -15,25 +15,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Trash It',
-  description: 'Created by Jagoan Timbang',
+  title: 'Waste Track',
+  description: 'Track your waste management',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <AuthProvider>
-      <html lang="en" className="dark">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`}
-        >
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body suppressHydrationWarning className="min-h-screen bg-base-100">
+        <AuthProvider>
           <Navbar />
-          {children}
-        </body>
-      </html>
-    </AuthProvider>
+          <main className="container max-w-7xl mx-auto px-4">{children}</main>
+        </AuthProvider>
+      </body>
+    </html>
   );
 }

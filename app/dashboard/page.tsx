@@ -24,8 +24,8 @@ export default async function DashboardRoute() {
   const data = await getData(user?.id);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
+    <div className="py-8">
+      <div className="flex items-center justify-between max-w-5xl mx-auto mb-8">
         <h2 className="text-xl font-medium">Your Blog Articles</h2>
 
         <Link className={buttonVariants()} href="/dashboard/create">
@@ -33,7 +33,7 @@ export default async function DashboardRoute() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
         {data.map((item) => (
           <BlogPostCard data={item} key={item.id} />
         ))}
