@@ -13,11 +13,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { prisma } from '@/app/utils/db';
 import { notFound } from 'next/navigation';
 
-type Params = {
-  id: string;
-};
-
-export default async function EditBlogRoute({ params }: { params: Params }) {
+export default async function EditBlogRoute({
+  params,
+}: {
+  params: { id: string };
+}) {
   const { id } = params;
 
   if (!id) {
