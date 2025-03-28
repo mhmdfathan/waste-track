@@ -9,17 +9,14 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 
 export default function CreateBlogRoute() {
   return (
     <div>
       <Card className="max-w-lg mx-auto">
         <CardHeader>
-          <CardTitle>Create Post</CardTitle>
-          <CardDescription>
-            Create a new post to share with the world
-          </CardDescription>
+          <CardTitle>Create Listing</CardTitle>
+          <CardDescription>Create a new listing for your waste</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="flex flex-col gap-4" action={handleSubmission}>
@@ -28,8 +25,8 @@ export default function CreateBlogRoute() {
               <Input name="title" required type="text" placeholder="Title" />
             </div>
             <div className="flex flex-col gap-2">
-              <Label>Content</Label>
-              <Textarea name="content" required placeholder="Content" />
+              <Label>Price</Label>
+              <Input name="content" required placeholder="Price" />
             </div>
             <div className="flex flex-col gap-2">
               <Label>Image URL</Label>

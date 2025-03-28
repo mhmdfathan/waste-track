@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         port: '',
       },
+      {
+        hostname: 'static.vecteezy.com',
+        protocol: 'https',
+        port: '',
+      },
     ],
   },
 };

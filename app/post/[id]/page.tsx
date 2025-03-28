@@ -27,9 +27,18 @@ export default async function IdPage({ params }: { params: Params }) {
 
   return (
     <div className="max-2-3xl mx-auto py-8 px-4">
-      <Link className={buttonVariants({ variant: 'secondary' })} href="/">
-        Back to posts
-      </Link>
+      <div className="flex items-center justify-between mb-4">
+        <Link className={buttonVariants({ variant: 'secondary' })} href="/">
+          Back to Listings
+        </Link>
+
+        <Link
+          className={buttonVariants({ variant: 'secondary' })}
+          href={`/dashboard/edit/${id}`}
+        >
+          Edit Listing
+        </Link>
+      </div>
 
       <div className="mb-8 mt-6">
         <h1 className="text-3xl font-bold tracking-tight mb-4">{data.title}</h1>
@@ -67,7 +76,7 @@ export default async function IdPage({ params }: { params: Params }) {
 
       <Card>
         <CardContent>
-          <p className="text-gray-700">{data.content}</p>
+          <p>{data.content}</p>
         </CardContent>
       </Card>
     </div>

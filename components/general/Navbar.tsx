@@ -34,6 +34,18 @@ export function Navbar() {
           >
             Dashboard
           </Link>
+          <Link
+            className="text-sm font-medium hover:text-emerald-500 transition-colors"
+            href="/timbang"
+          >
+            Timbang
+          </Link>
+          <Link
+            className="text-sm font-medium hover:text-emerald-500 transition-colors"
+            href="/statistics"
+          >
+            Statisctics
+          </Link>
         </div>
       </div>
       {user ? (
