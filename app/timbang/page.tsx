@@ -11,13 +11,13 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from '@/components/ui/select';
 
 interface WasteEntry {
   type: 'recyclable' | 'non-recyclable';
@@ -28,7 +28,6 @@ export default function TimbangPage() {
   const [wasteEntries, setWasteEntries] = useState<WasteEntry[]>([]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
 
-  // Calculate totals
   const recyclableTotal = wasteEntries.reduce(
     (sum, entry) => (entry.type === 'recyclable' ? sum + entry.amount : sum),
     0,
@@ -38,7 +37,7 @@ export default function TimbangPage() {
       entry.type === 'non-recyclable' ? sum + entry.amount : sum,
     0,
   );
-  const totalWaste = recyclableTotal + nonRecyclableTotal;
+  const totalWaste = wasteEntries.reduce((sum, entry) => sum + entry.amount, 0);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -74,41 +73,41 @@ export default function TimbangPage() {
     <div className="container max-w-7xl mx-auto p-6 space-y-8">
       <div className="flex flex-col gap-2">
         <h1 className="scroll-m-20 text-4xl font-bold tracking-tight">
-          Waste Tracking
+          Pencatatan Sampah
         </h1>
         <p className="text-muted-foreground">
-          Monitor and manage your waste disposal records
+          Pantau dan kelola catatan pembuangan sampah Anda
         </p>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Statistik */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Recyclable Waste</CardDescription>
+            <CardDescription>Sampah Daur Ulang</CardDescription>
             <CardTitle>{recyclableTotal.toFixed(2)} kg</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Non-Recyclable Waste</CardDescription>
+            <CardDescription>Sampah Tidak Daur Ulang</CardDescription>
             <CardTitle>{nonRecyclableTotal.toFixed(2)} kg</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Total Waste</CardDescription>
+            <CardDescription>Total Sampah</CardDescription>
             <CardTitle>{totalWaste.toFixed(2)} kg</CardTitle>
           </CardHeader>
         </Card>
       </div>
 
-      {/* Waste Tracking Form */}
+      {/* Formulir Pencatatan Sampah */}
       <Card>
         <CardHeader>
-          <CardTitle>Track Your Waste</CardTitle>
+          <CardTitle>Catat Sampah Anda</CardTitle>
           <CardDescription>
-            Add new waste records or update existing ones
+            Tambahkan atau perbarui catatan sampah
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -117,39 +116,24 @@ export default function TimbangPage() {
             onSubmit={handleSubmit}
             className="space-y-4 overflow-hidden"
           >
-            <div className="space-y-2 relative z-50">
-              <Label htmlFor="wasteType">Waste Type</Label>
-              <div key={editIndex}>
-                <Select name="wasteType" defaultValue="recyclable" required>
-                  <SelectTrigger className="w-full min-w-[150px]">
-                    <SelectValue>
-                      {editIndex !== null
-                        ? wasteEntries[editIndex].type
-                        : 'Select waste type'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent
-                    side="bottom"
-                    position="popper"
-                    className="w-[var(--radix-select-trigger-width)]"
-                    sideOffset={0}
-                  >
-                    <SelectItem value="recyclable">Recyclable</SelectItem>
-                    <SelectItem value="non-recyclable">
-                      Non-Recyclable
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="wasteType">Jenis Sampah</Label>
+              <Input
+                type="text"
+                id="wasteType"
+                name="wasteType"
+                placeholder="Masukkan jenis sampah (contoh: recyclable, non-recyclable)"
+                required
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="wasteAmount">Amount (kg)</Label>
+              <Label htmlFor="wasteAmount">Jumlah (kg)</Label>
               <Input
                 type="number"
                 id="wasteAmount"
                 name="wasteAmount"
-                placeholder="Enter weight in kg"
+                placeholder="Masukkan berat dalam kg"
                 step="0.01"
                 min="0"
                 required
@@ -157,17 +141,19 @@ export default function TimbangPage() {
             </div>
 
             <Button type="submit" className="w-full sm:w-auto">
-              {editIndex !== null ? 'Update Waste' : 'Add Waste'}
+              {editIndex !== null ? 'Perbarui Sampah' : 'Tambah Sampah'}
             </Button>
           </form>
         </CardContent>
       </Card>
 
-      {/* Waste History */}
+      {/* Riwayat Sampah */}
       <Card>
         <CardHeader>
-          <CardTitle>Waste History</CardTitle>
-          <CardDescription>View and manage your waste records</CardDescription>
+          <CardTitle>Riwayat Sampah</CardTitle>
+          <CardDescription>
+            Lihat dan kelola catatan sampah Anda
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="relative w-full overflow-auto">
@@ -175,13 +161,13 @@ export default function TimbangPage() {
               <thead className="bg-muted/50">
                 <tr>
                   <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Type
+                    Jenis
                   </th>
                   <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Amount (kg)
+                    Jumlah (kg)
                   </th>
                   <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Actions
+                    Aksi
                   </th>
                 </tr>
               </thead>
@@ -192,7 +178,7 @@ export default function TimbangPage() {
                       colSpan={3}
                       className="p-4 text-center text-muted-foreground"
                     >
-                      No waste entries yet
+                      Belum ada catatan sampah
                     </td>
                   </tr>
                 ) : (
@@ -221,7 +207,7 @@ export default function TimbangPage() {
                             variant="destructive"
                             size="sm"
                           >
-                            Delete
+                            Hapus
                           </Button>
                         </div>
                       </td>

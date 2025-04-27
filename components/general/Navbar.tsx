@@ -8,6 +8,7 @@ import {
   LogoutLink,
 } from '@kinde-oss/kinde-auth-nextjs/components';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { ModeToggle } from './ModeToggle';
 
 export function Navbar() {
   const { getUser } = useKindeBrowserClient();
@@ -28,41 +29,50 @@ export function Navbar() {
           >
             Home
           </Link>
-          <Link
-            className="text-sm font-medium hover:text-emerald-500 transition-colors"
-            href="/dashboard"
-          >
-            Dashboard
-          </Link>
-          <Link
-            className="text-sm font-medium hover:text-emerald-500 transition-colors"
-            href="/timbang"
-          >
-            Timbang
-          </Link>
-          <Link
-            className="text-sm font-medium hover:text-emerald-500 transition-colors"
-            href="/statistics"
-          >
-            Statisctics
-          </Link>
+          {user && (
+            <>
+              <Link
+                className="text-sm font-medium hover:text-emerald-500 transition-colors"
+                href="/dashboard"
+              >
+                Dashboard
+              </Link>
+              <Link
+                className="text-sm font-medium hover:text-emerald-500 transition-colors"
+                href="/timbang"
+              >
+                Timbang
+              </Link>
+              <Link
+                className="text-sm font-medium hover:text-emerald-500 transition-colors"
+                href="/statistics"
+              >
+                Statistics
+              </Link>
+            </>
+          )}
         </div>
       </div>
-      {user ? (
-        <div className="flex items-center gap-4">
-          <p>{user.given_name}</p>
-          <LogoutLink className={buttonVariants({ variant: 'secondary' })}>
-            Logout
-          </LogoutLink>
-        </div>
-      ) : (
-        <div className="flex items-center gap-4">
-          <LoginLink className={buttonVariants()}>Login</LoginLink>
-          <RegisterLink className={buttonVariants({ variant: 'secondary' })}>
-            Sign up
-          </RegisterLink>
-        </div>
-      )}
+      {/* Group ModeToggle and Auth buttons together */}
+      <div className="flex items-center gap-2">
+        {user ? (
+          <div className="flex items-center gap-4">
+            <ModeToggle />
+            <p>{user.given_name}</p>
+            <LogoutLink className={buttonVariants({ variant: 'secondary' })}>
+              Logout
+            </LogoutLink>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <ModeToggle />
+            <LoginLink className={buttonVariants()}>Login</LoginLink>
+            <RegisterLink className={buttonVariants({ variant: 'secondary' })}>
+              Sign up
+            </RegisterLink>
+          </div>
+        )}
+      </div>
     </nav>
   );
 }

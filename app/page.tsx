@@ -2,6 +2,7 @@ import { BlogPostCard } from '@/components/general/BlogpostCard';
 import { prisma } from './utils/db';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+// import CarouselSize from '@/components/CarouselComp';
 
 export const revalidate = 60;
 
@@ -30,7 +31,6 @@ export default function Home() {
   return (
     <div className="py-6">
       <h1 className="text-3xl font-bold tracking-tight mb-8">Latest post</h1>
-
       <Suspense fallback={<BlogPostsGrid />}>
         <BlogPost />
       </Suspense>
