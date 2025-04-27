@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 
 export default function CreateBlogRoute() {
   const [uploading, setUploading] = useState(false);
@@ -26,7 +26,7 @@ export default function CreateBlogRoute() {
     setUploading(true);
     const fileExt = file.name.split('.').pop();
     const fileName = `${uuidv4()}.${fileExt}`;
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('images') // Make sure you have an 'images' bucket in Supabase
       .upload(fileName, file);
     if (error) {
