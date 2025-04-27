@@ -121,7 +121,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function Component() {
+export default function StatisticsPage() {
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>('desktop');
 
@@ -212,8 +212,4 @@ export function Component() {
       </CardContent>
     </Card>
   );
-}
-
-export default function StatisticsPage() {
-  return <Component />;
 }
