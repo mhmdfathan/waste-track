@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/general/Navbar';
+import { BottomNav } from '@/components/general/BottomNav';
 import { AuthProvider } from '@/components/general/AuthProvider';
 import { ThemeProvider } from '@/components/theme-provider';
 
@@ -29,7 +30,7 @@ export default function RootLayout({
     <AuthProvider>
       <html lang="en" suppressHydrationWarning style={{ overflowY: 'scroll' }}>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 sm:pb-0`}
         >
           <ThemeProvider
             attribute="class"
@@ -39,6 +40,7 @@ export default function RootLayout({
           >
             <Navbar />
             {children}
+            <BottomNav />
           </ThemeProvider>
         </body>
       </html>
