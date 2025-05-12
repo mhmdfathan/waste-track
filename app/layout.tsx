@@ -30,7 +30,7 @@ export default function RootLayout({
     <AuthProvider>
       <html lang="en" suppressHydrationWarning style={{ overflowY: 'scroll' }}>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 sm:pb-0`}
+          className={`${geistSans.variable} ${geistMono.variable} w-screen overflow-x-hidden min-h-screen`}
         >
           <ThemeProvider
             attribute="class"
@@ -38,9 +38,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar />
-            {children}
-            <BottomNav />
+            <div className="relative flex min-h-screen flex-col">
+              <Navbar />
+              <div className="flex-1 pt-16">{children}</div>
+              <BottomNav />
+            </div>
           </ThemeProvider>
         </body>
       </html>

@@ -3,6 +3,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@layer base {
+  html,
+  body,
+  :root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -113,5 +126,6 @@
 }
 
 html {
-  overflow-y: scroll; /* Always reserve space for scrollbar to prevent layout shift */
+  overflow-y: scroll;
+  /* Always reserve space for scrollbar to prevent layout shift */
 }

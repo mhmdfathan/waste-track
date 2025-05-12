@@ -15,7 +15,7 @@ export function Navbar() {
   const user = getUser();
 
   return (
-    <nav className="py-5 flex items-center justify-between">
+    <nav className="fixed top-0 w-screen py-5 flex items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 px-6">
       <div className="flex items-center gap-6">
         <Link href="/">
           <h1 className="text-3xl font-semibold">

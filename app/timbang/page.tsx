@@ -7,17 +7,18 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface WasteEntry {
   type: 'recyclable' | 'non-recyclable';
@@ -143,44 +144,65 @@ export default function TimbangPage() {
         <CardHeader>
           <CardTitle>Catat Sampah Anda</CardTitle>
           <CardDescription>
-            Tambahkan atau perbarui catatan sampah
+            Tambahkan atau perbarui catatan sampah Anda dengan mudah
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            id="wasteForm"
-            onSubmit={handleSubmit}
-            className="space-y-4 overflow-hidden"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="wasteType">Jenis Sampah</Label>
-              <Input
-                type="text"
-                id="wasteType"
-                name="wasteType"
-                placeholder="Masukkan jenis sampah (contoh: recyclable, non-recyclable)"
-                required
-              />
+          <form id="wasteForm" onSubmit={handleSubmit}>
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="wasteType">Jenis Sampah</Label>
+                <div className="relative w-[200px]">
+                  <Select name="wasteType" required defaultValue="">
+                    <SelectTrigger id="wasteType" className="w-full">
+                      <SelectValue placeholder="Pilih jenis sampah" />
+                    </SelectTrigger>
+                    <SelectContent
+                      sideOffset={4}
+                      position="popper"
+                      className="w-[200px]"
+                    >
+                      <SelectItem value="recyclable">Daur Ulang</SelectItem>
+                      <SelectItem value="non-recyclable">
+                        Tidak Daur Ulang
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="wasteAmount">Jumlah (kg)</Label>
+                <Input
+                  type="number"
+                  id="wasteAmount"
+                  name="wasteAmount"
+                  placeholder="Masukkan berat dalam kg"
+                  step="0.01"
+                  min="0"
+                  required
+                />
+              </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="wasteAmount">Jumlah (kg)</Label>
-              <Input
-                type="number"
-                id="wasteAmount"
-                name="wasteAmount"
-                placeholder="Masukkan berat dalam kg"
-                step="0.01"
-                min="0"
-                required
-              />
-            </div>
-
-            <Button type="submit" className="w-full sm:w-auto">
-              {editIndex !== null ? 'Perbarui Sampah' : 'Tambah Sampah'}
-            </Button>
           </form>
         </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              const form = document.getElementById(
+                'wasteForm',
+              ) as HTMLFormElement;
+              form.reset();
+              setEditIndex(null);
+            }}
+          >
+            Batal
+          </Button>
+          <Button type="submit" form="wasteForm">
+            {editIndex !== null ? 'Perbarui' : 'Tambah'}
+          </Button>
+        </CardFooter>
       </Card>
 
       {/* Riwayat Sampah */}
