@@ -218,11 +218,15 @@ export default function TimbangPage() {
             <table className="w-full border-collapse border-spacing-0">
               <thead className="bg-muted/50">
                 <tr>
+                  {' '}
                   <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
                     Jenis
                   </th>
                   <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
                     Jumlah (kg)
+                  </th>
+                  <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Nilai
                   </th>
                   <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
                     Aksi
@@ -233,7 +237,7 @@ export default function TimbangPage() {
                 {wasteEntries.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={3}
+                      colSpan={4}
                       className="p-4 text-center text-muted-foreground"
                     >
                       Belum ada catatan sampah
@@ -247,9 +251,16 @@ export default function TimbangPage() {
                     >
                       <td className="p-4 align-middle capitalize">
                         {entry.type}
-                      </td>
+                      </td>{' '}
                       <td className="p-4 align-middle">
                         {entry.amount.toFixed(2)} kg
+                      </td>
+                      <td className="p-4 align-middle">
+                        {formatToRupiah(
+                          entry.type === 'recyclable'
+                            ? entry.amount * PRICE_RATES.recyclable
+                            : entry.amount * PRICE_RATES['non-recyclable'],
+                        )}
                       </td>
                       <td className="p-4 align-middle">
                         <div className="flex items-center gap-2">
