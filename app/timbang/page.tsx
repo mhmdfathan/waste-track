@@ -24,6 +24,12 @@ interface WasteEntry {
   amount: number;
 }
 
+// Price rates per kg in Rupiah
+const PRICE_RATES = {
+  recyclable: 5000, // Rp 5,000 per kg for recyclable waste
+  'non-recyclable': 2000, // Rp 2,000 per kg for non-recyclable waste
+};
+
 export default function TimbangPage() {
   const [wasteEntries, setWasteEntries] = useState<WasteEntry[]>([]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -38,6 +44,21 @@ export default function TimbangPage() {
     0,
   );
   const totalWaste = wasteEntries.reduce((sum, entry) => sum + entry.amount, 0);
+
+  // Calculate total value in Rupiah
+  const recyclableValue = recyclableTotal * PRICE_RATES.recyclable;
+  const nonRecyclableValue = nonRecyclableTotal * PRICE_RATES['non-recyclable'];
+  const totalValue = recyclableValue + nonRecyclableValue;
+
+  // Format number to Rupiah
+  const formatToRupiah = (number: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(number);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -81,23 +102,38 @@ export default function TimbangPage() {
       </div>
 
       {/* Statistik */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Sampah Daur Ulang</CardDescription>
             <CardTitle>{recyclableTotal.toFixed(2)} kg</CardTitle>
+            <CardDescription>{formatToRupiah(recyclableValue)}</CardDescription>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Sampah Tidak Daur Ulang</CardDescription>
             <CardTitle>{nonRecyclableTotal.toFixed(2)} kg</CardTitle>
+            <CardDescription>
+              {formatToRupiah(nonRecyclableValue)}
+            </CardDescription>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total Sampah</CardDescription>
             <CardTitle>{totalWaste.toFixed(2)} kg</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription>Total Nilai</CardDescription>
+            <CardTitle>{formatToRupiah(totalValue)}</CardTitle>
+            <CardDescription>
+              Rp {PRICE_RATES.recyclable}/kg (daur ulang)
+              <br />
+              Rp {PRICE_RATES['non-recyclable']}/kg (non-daur ulang)
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>
