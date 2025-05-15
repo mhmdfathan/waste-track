@@ -21,13 +21,15 @@ async function getData(id: string) {
 
 type Params = Promise<{ id: string }>;
 
+// ...existing code...
+
 export default async function IdPage({ params }: { params: Params }) {
   const { id } = await params;
   const data = await getData(id);
 
   return (
-    <div className="max-2-3xl mx-auto py-8 px-4">
-      <div className="flex items-center justify-between mb-4">
+    <div className="container max-w-7xl mx-auto p-6 space-y-8">
+      <div className="flex items-center justify-between">
         <Link className={buttonVariants({ variant: 'secondary' })} href="/">
           Back to Listings
         </Link>
@@ -40,8 +42,10 @@ export default async function IdPage({ params }: { params: Params }) {
         </Link>
       </div>
 
-      <div className="mb-8 mt-6">
-        <h1 className="text-3xl font-bold tracking-tight mb-4">{data.title}</h1>
+      <div className="flex flex-col gap-2">
+        <h1 className="scroll-m-20 text-4xl font-bold tracking-tight">
+          {data.title}
+        </h1>
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <div className="relative size-10 overflow-hidden rounded-full">
@@ -54,7 +58,7 @@ export default async function IdPage({ params }: { params: Params }) {
             </div>
             <p className="font-medium">{data.authorName}</p>
           </div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {new Intl.DateTimeFormat('en-US', {
               year: 'numeric',
               month: 'long',
@@ -64,7 +68,7 @@ export default async function IdPage({ params }: { params: Params }) {
         </div>
       </div>
 
-      <div className="relative h-[400px] w-full mb-8 overflow-hidden rounded-lg">
+      <div className="relative h-[400px] w-full overflow-hidden rounded-lg">
         <Image
           src={data.imageUrl}
           alt={data.title}
@@ -75,7 +79,7 @@ export default async function IdPage({ params }: { params: Params }) {
       </div>
 
       <Card>
-        <CardContent>
+        <CardContent className="pt-6">
           <p>{data.content}</p>
         </CardContent>
       </Card>

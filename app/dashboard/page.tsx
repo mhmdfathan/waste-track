@@ -24,10 +24,18 @@ export default async function DashboardRoute() {
   const data = await getData(user?.id);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-medium">Your Listing</h2>
+    <div className="container max-w-7xl mx-auto p-6 space-y-8">
+      <div className="flex flex-col gap-2">
+        <h1 className="scroll-m-20 text-4xl font-bold tracking-tight">
+          Dashboard
+        </h1>
+        <p className="text-muted-foreground">
+          Manage and track your waste management listings
+        </p>
+      </div>
 
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-medium">Your Listings</h2>
         <Link className={buttonVariants()} href="/dashboard/create">
           Create Listing
         </Link>
