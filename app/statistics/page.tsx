@@ -112,11 +112,11 @@ const chartData = [
 
 const chartConfig = {
   desktop: {
-    label: 'Desktop',
+    label: 'Daur Ulang',
     color: 'hsl(140, 74%, 44%)',
   },
   mobile: {
-    label: 'Mobile',
+    label: 'Non Daur Ulang',
     color: 'hsl(140, 74%, 44%)',
   },
 } satisfies ChartConfig;

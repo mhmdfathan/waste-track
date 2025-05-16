@@ -14,13 +14,15 @@
 // }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  schemas   = ["public", "auth"]
 }
 
 model BlogPost {
@@ -34,4 +36,15 @@ model BlogPost {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@schema("public")
+}
+
+model UserRole {
+  id     String @id @default(cuid())
+  userId String @unique @map("user_id") @db.Uuid // Supabase auth user ID, type changed to Uuid
+  role   String
+
+  @@map("user_roles")
+  @@schema("public")
 }
