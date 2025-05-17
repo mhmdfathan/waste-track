@@ -1,3 +1,64 @@
+# 📌 TrashIt – Platform Web untuk Transformasi Pengelolaan Sampah dan Bank Sampah Berkelanjutan
+
+
+## 👥 Tim Pengembang – Jagoan Timbang
+
+**Universitas Diponegoro**
+
+- **Alkha Nayla Syahla** – NIM: 21080121140038 – Teknik Lingkungan  
+- **Wimanda Novita Putri** – NIM: 21080121140039 – Teknik Lingkungan  
+- **Muhammad Fathan Mubiina** – NIM: 21120121140164 – Teknik Komputer  
+
+---
+
+## 🌐 Deskripsi Proyek
+
+**TrashIt** adalah platform digital berbasis web yang dirancang untuk memfasilitasi pengelolaan sampah secara efisien dan berkelanjutan.  
+Platform ini memungkinkan nasabah, admin bank sampah, dan perusahaan pengepul (offtaker) untuk berinteraksi dalam ekosistem pengelolaan sampah yang terintegrasi.  
+Dengan fitur-fitur seperti input data sampah, pemantauan saldo, dan marketplace sampah, TrashIt bertujuan untuk meningkatkan kesadaran dan partisipasi masyarakat dalam pengelolaan sampah.
+
+---
+
+## 💠 Panduan Instalasi dan Menjalankan Aplikasi
+
+### 1. Persyaratan Sistem
+
+- Node.js (versi terbaru disarankan)
+- Package manager seperti `npm`, `yarn`, `pnpm`, atau `bun`
+
+### 2. Langkah-langkah Instalasi
+
+#### a. Kloning Repository
+
+```bash
+git clone https://github.com/username/trashit.git
+cd trashit
+```
+
+b. Instalasi Dependensi
+
+```bash
+npm install
+# atau
+yarn install
+# atau
+pnpm install
+# atau
+bun install
+```
+
+
+c. Menjalankan Server Pengembangan
+```bash
+npm run dev
+# atau
+yarn dev
+# atau
+pnpm dev
+# atau
+bun dev
+```
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -14,23 +75,50 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Fitur Utama
+Untuk Nasabah:
+Akses aplikasi: https://waste-track.vercel.app
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Login menggunakan akun nasabah
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Pilih menu Input Sampah Organik
 
-## Learn More
+Masukkan data (jenis & berat) dan klik Simpan
 
-To learn more about Next.js, take a look at the following resources:
+Cek saldo dan histori di halaman Dashboard
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Tarik saldo via GoPay, ShopeePay, transfer bank, atau tunai
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Untuk Admin:
+Login ke sistem sebagai admin
 
-## Deploy on Vercel
+Pilih menu Timbang Sampah Anorganik
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Masukkan nama nasabah dan data penimbangan
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Klik Simpan, data langsung masuk ke akun nasabah
+
+## Untuk Offtaker (Perusahaan Pengepul):
+Login sebagai pengguna offtaker
+
+Buka menu Marketplace
+
+Lihat dan pilih jenis sampah yang tersedia
+
+Klik Pesan dan konfirmasi ke admin TrashIt
+
+## ❓ FAQ & Troubleshooting
+Q: Saya lupa password, bagaimana cara reset?
+A: Klik “Lupa Password” di halaman login dan ikuti instruksi reset melalui email.
+
+Q: Saldo saya belum muncul setelah setor sampah. Apa solusinya?
+A: Pastikan admin telah memasukkan data. Jika belum masuk dalam 24 jam, hubungi admin bank sampah Anda.
+
+Q: Sampah apa saja yang bisa saya input sendiri?
+A: Nasabah hanya dapat menginput sampah organik seperti buah/sayur, kompos, dan eco-enzyme. Sampah anorganik diinput oleh admin.
+
+Q: Apakah bisa tarik saldo langsung ke dompet digital?
+A: Bisa. TrashIt mendukung GoPay, ShopeePay, dan transfer bank.
+
+Q: Bagaimana cara membeli sampah dari marketplace TrashIt?
+A: Login sebagai offtaker → buka marketplace → pilih item → klik “Pesan” → admin akan mengatur pengambilan.
