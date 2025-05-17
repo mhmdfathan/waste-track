@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 import { ModeToggle } from './ModeToggle';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { getUserProfile } from '@/lib/auth';
+import { getUserProfileClient } from '@/lib/auth-client';
 import type { UserRole } from '@prisma/client';
 import {
   DropdownMenu,
@@ -35,7 +35,7 @@ export function Navbar() {
       } = await supabase.auth.getUser();
       setUser(user);
       if (user) {
-        const profileData = await getUserProfile();
+        const profileData = await getUserProfileClient();
         if (profileData) {
           setProfile(profileData);
         }
@@ -49,7 +49,7 @@ export function Navbar() {
         const currentUser = session?.user ?? null;
         setUser(currentUser);
         if (currentUser) {
-          const profileData = await getUserProfile();
+          const profileData = await getUserProfileClient();
           if (profileData) {
             setProfile(profileData);
           }
