@@ -1,13 +1,15 @@
 import prisma from '@/app/utils/db';
 import { buttonVariants } from '@/components/ui/button';
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -197,9 +199,59 @@ export default async function IdPage({ params }: { params: Params }) {
                     </>
                   ) : (
                     <>
-                      <Button size="lg" className="w-full">
-                        Contact Seller
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="lg" className="w-full">
+                            Contact Seller
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Contact Seller</DialogTitle>
+                            <DialogDescription>
+                              Here&apos;s the seller&apos;s contact details.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="flex flex-col gap-4">
+                            <div className="flex items-center gap-4">
+                              <Avatar className="h-16 w-16">
+                                <AvatarImage
+                                  src={data.authorImage}
+                                  alt={data.authorName}
+                                />
+                                <AvatarFallback>
+                                  {data.authorName[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium text-lg">
+                                  {data.authorName}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  Waste Seller
+                                </p>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium text-muted-foreground">
+                                Phone Number
+                              </p>
+                              <p className="text-lg font-medium">
+                                +62 812-3456-7890
+                              </p>
+                            </div>
+                          </div>
+                          <DialogFooter className="mt-4">
+                            <Button
+                              variant="outline"
+                              className="w-full"
+                              asChild
+                            >
+                              <DialogClose>Close</DialogClose>
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                       <Button size="lg" variant="outline" className="w-full">
                         Make Offer
                       </Button>

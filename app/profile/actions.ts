@@ -2,6 +2,7 @@
 
 import prisma from '@/app/utils/db';
 import { createClient } from '@/lib/supabase/server';
+import { WasteType } from '@prisma/client';
 
 export async function updateUserProfile(data: {
   name: string;
@@ -16,7 +17,7 @@ export async function updateUserProfile(data: {
   deliveryRadius?: number;
   deliveryFeeBase?: number;
   feePerKm?: number;
-  acceptedWasteTypes?: string[];
+  acceptedWasteTypes?: WasteType[];
 }) {
   const supabase = await createClient();
   const {
@@ -71,8 +72,9 @@ export async function updateUserProfile(data: {
           deliveryRadius: data.deliveryRadius,
           deliveryFeeBase: data.deliveryFeeBase,
           feePerKm: data.feePerKm,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          acceptedWasteTypes: data.acceptedWasteTypes as any[], // Cast to any[] as it's an enum array
+          ...(data.acceptedWasteTypes && {
+            acceptedWasteTypes: data.acceptedWasteTypes,
+          }),
         },
       });
     }

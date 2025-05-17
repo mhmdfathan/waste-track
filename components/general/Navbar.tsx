@@ -1,25 +1,30 @@
 'use client';
 
-import Link from 'next/link';
-import { buttonVariants } from '../ui/button';
-import { ModeToggle } from './ModeToggle';
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
-import { Avatar, AvatarFallback } from '../ui/avatar';
+import Link from 'next/link';
+import { buttonVariants } from '@/components/ui/button';
+import { ModeToggle } from './ModeToggle';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { getUserProfile } from '@/lib/auth';
+import type { UserRole } from '@prisma/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import type { UserRole } from '@prisma/client';
-import { getProfile } from '@/app/actions';
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
 
 export function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserRole | null>(null);
@@ -30,7 +35,7 @@ export function Navbar() {
       } = await supabase.auth.getUser();
       setUser(user);
       if (user) {
-        const profileData = await getProfile(user.id);
+        const profileData = await getUserProfile();
         if (profileData) {
           setProfile(profileData);
         }
@@ -43,9 +48,8 @@ export function Navbar() {
       async (_event, session) => {
         const currentUser = session?.user ?? null;
         setUser(currentUser);
-
         if (currentUser) {
-          const profileData = await getProfile(currentUser.id);
+          const profileData = await getUserProfile();
           if (profileData) {
             setProfile(profileData);
           }
@@ -79,7 +83,12 @@ export function Navbar() {
             </Link>
             <div className="hidden sm:flex items-center gap-6">
               <Link
-                className="text-sm font-medium hover:text-emerald-500 transition-colors"
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-emerald-500',
+                  pathname === '/'
+                    ? 'text-emerald-500'
+                    : 'text-muted-foreground',
+                )}
                 href="/"
               >
                 Home
@@ -87,22 +96,48 @@ export function Navbar() {
               {user && (
                 <>
                   <Link
-                    className="text-sm font-medium hover:text-emerald-500 transition-colors"
+                    className={cn(
+                      'text-sm font-medium transition-colors hover:text-emerald-500',
+                      pathname === '/dashboard'
+                        ? 'text-emerald-500'
+                        : 'text-muted-foreground',
+                    )}
                     href="/dashboard"
                   >
                     Dashboard
                   </Link>
                   <Link
-                    className="text-sm font-medium hover:text-emerald-500 transition-colors"
+                    className={cn(
+                      'text-sm font-medium transition-colors hover:text-emerald-500',
+                      pathname === '/timbang'
+                        ? 'text-emerald-500'
+                        : 'text-muted-foreground',
+                    )}
                     href="/timbang"
                   >
                     Timbang
                   </Link>
                   <Link
-                    className="text-sm font-medium hover:text-emerald-500 transition-colors"
+                    className={cn(
+                      'text-sm font-medium transition-colors hover:text-emerald-500',
+                      pathname === '/statistics'
+                        ? 'text-emerald-500'
+                        : 'text-muted-foreground',
+                    )}
                     href="/statistics"
                   >
                     Statistics
+                  </Link>
+                  <Link
+                    className={cn(
+                      'text-sm font-medium transition-colors hover:text-emerald-500',
+                      pathname === '/transactions'
+                        ? 'text-emerald-500'
+                        : 'text-muted-foreground',
+                    )}
+                    href="/transactions"
+                  >
+                    Transactions
                   </Link>
                 </>
               )}
@@ -110,7 +145,6 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            {' '}
             {user ? (
               <div className="flex items-center gap-4">
                 <ModeToggle />
@@ -119,35 +153,27 @@ export function Navbar() {
                     <Avatar className="h-8 w-8 hover:opacity-75 transition">
                       <AvatarFallback className="bg-emerald-500 text-white">
                         {profile?.name
-                          ? profile.name
-                              .split(' ')
-                              .map((n) => n[0])
-                              .join('')
-                              .toUpperCase()
-                          : user.email?.[0].toUpperCase()}
+                          ? profile.name.charAt(0).toUpperCase()
+                          : user.email?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <div className="flex items-center justify-start gap-2 p-2">
-                      <div className="flex flex-col space-y-1 leading-none">
-                        {profile?.name && (
-                          <p className="font-medium">{profile.name}</p>
-                        )}
-                        <p className="w-[200px] truncate text-sm text-muted-foreground">
-                          {user.email}
-                        </p>
-                      </div>
-                    </div>
+                  <DropdownMenuContent align="end" className="w-[200px]">
+                    <DropdownMenuLabel>
+                      {profile?.name || user.email}
+                    </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile">Profile</Link>
-                    </DropdownMenuItem>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile">Profile Settings</Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      className="text-red-600"
+                      className="text-red-500 focus:text-red-500"
                       onClick={handleLogout}
                     >
-                      Log out
+                      Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

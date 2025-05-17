@@ -9,9 +9,9 @@ export default async function ProfilePage() {
 
     if (!profile) {
       console.log(
-        '[Profile Page Debug] No authenticated user or profile found, redirecting to login',
+        '[Profile Page Debug] No profile found, redirecting to login',
       );
-      return redirect('/login');
+      redirect('/login');
     }
 
     // Validate that we have all necessary data based on role
@@ -21,7 +21,7 @@ export default async function ProfilePage() {
         hasEmail: !!profile.email,
         hasRole: !!profile.role,
       });
-      return redirect('/error?message=incomplete_profile');
+      throw new Error('Incomplete profile data');
     }
 
     // For company accounts, ensure we have company profile data
@@ -29,7 +29,7 @@ export default async function ProfilePage() {
       console.error(
         '[Profile Page Debug] Company profile missing for company role',
       );
-      return redirect('/error?message=missing_company_profile');
+      throw new Error('Company profile data not found');
     }
 
     console.log('[Profile Page Debug] Profile loaded successfully:', {
@@ -40,9 +40,6 @@ export default async function ProfilePage() {
     return <ProfileContent profile={profile} />;
   } catch (error) {
     console.error('[Profile Page Debug] Error loading profile:', error);
-    if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
-      throw error; // Let Next.js handle the redirect
-    }
-    return redirect('/error?message=profile_load_error');
+    redirect('/error');
   }
 }
