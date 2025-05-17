@@ -21,12 +21,10 @@ export default async function IdPage({ params }: { params: Params }) {
   if (!id) {
     notFound();
   }
-
-  const post = await prisma.blogPost.findUnique({
+  const listing = await prisma.wasteListing.findUnique({
     where: { id },
   });
-
-  if (!post) {
+  if (!listing) {
     notFound();
   }
 
@@ -45,23 +43,58 @@ export default async function IdPage({ params }: { params: Params }) {
         <CardContent>
           <form className="flex flex-col gap-4" action={editAction}>
             <div className="flex flex-col gap-2">
-              <Label>Title</Label>
+              <Label>Title</Label>{' '}
               <Input
                 name="title"
                 required
                 type="text"
                 placeholder="Title"
-                defaultValue={post.title}
+                defaultValue={listing.title}
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label>Content</Label>
+              <Label>Description</Label>
               <Textarea
                 name="content"
                 required
-                placeholder="Content"
-                defaultValue={post.content}
+                placeholder="Description"
+                defaultValue={listing.description}
               />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>Price (IDR)</Label>
+              <Input
+                name="price"
+                required
+                type="number"
+                min="0"
+                placeholder="Price"
+                defaultValue={listing.price}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>Weight (kg)</Label>
+              <Input
+                name="weight"
+                required
+                type="number"
+                min="0"
+                step="0.1"
+                placeholder="Weight"
+                defaultValue={listing.weight}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>Waste Type</Label>{' '}
+              <select
+                name="wasteType"
+                required
+                defaultValue={listing.wasteType}
+                className="form-select rounded-md border p-2"
+              >
+                <option value="RECYCLABLE">Recyclable</option>
+                <option value="NON_RECYCLABLE">Non-Recyclable</option>
+              </select>
             </div>
             <div className="flex flex-col gap-2">
               <Label>Image URL</Label>
@@ -70,7 +103,7 @@ export default async function IdPage({ params }: { params: Params }) {
                 required
                 type="url"
                 placeholder="Image URL"
-                defaultValue={post.imageUrl}
+                defaultValue={listing.imageUrl}
               />
             </div>
             <Submitbutton />

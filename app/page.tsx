@@ -7,16 +7,20 @@ import { Skeleton } from '@/components/ui/skeleton';
 export const revalidate = 60;
 
 async function getData() {
-  const data = await prisma.blogPost.findMany({
+  const data = await prisma.wasteListing.findMany({
     select: {
       title: true,
-      content: true,
+      description: true,
+      price: true,
       imageUrl: true,
-      authorImage: true,
+      wasteType: true,
+      weight: true,
+      authorId: true,
       authorName: true,
+      authorImage: true,
+      status: true,
       id: true,
       createdAt: true,
-      authorId: true,
       updatedAt: true,
     },
     orderBy: {
@@ -32,10 +36,10 @@ export default function Home() {
     <div className="container max-w-7xl mx-auto p-6 space-y-8">
       <div className="flex flex-col gap-2">
         <h1 className="scroll-m-20 text-4xl font-bold tracking-tight">
-          Latest post
+          Latest Waste Listings
         </h1>
         <p className="text-muted-foreground">
-          Stay updated with our latest waste management articles
+          Browse available waste listings from our community
         </p>
       </div>
 

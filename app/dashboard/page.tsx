@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { BlogPostCard } from '@/components/general/BlogpostCard';
 
 async function getData(userId: string) {
-  const data = await prisma.blogPost.findMany({
+  const data = await prisma.wasteListing.findMany({
     where: {
       authorId: userId,
     },

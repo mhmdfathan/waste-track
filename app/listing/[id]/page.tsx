@@ -39,6 +39,7 @@ export default async function IdPage({ params }: { params: Params }) {
           Edit Listing
         </Link>
       </div>
+
       <div className="flex flex-col gap-2">
         <h1 className="scroll-m-20 text-4xl font-bold tracking-tight">
           {data.title}
@@ -64,6 +65,7 @@ export default async function IdPage({ params }: { params: Params }) {
           </p>
         </div>
       </div>
+
       <div className="relative h-[400px] w-full overflow-hidden rounded-lg">
         <Image
           src={data.imageUrl}
@@ -72,8 +74,7 @@ export default async function IdPage({ params }: { params: Params }) {
           className="object-cover"
           priority
         />
-      </div>{' '}
-      <Card>
+      </div>      <Card>
         <CardContent className="pt-6">
           <p>{data.description}</p>
         </CardContent>

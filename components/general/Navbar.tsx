@@ -7,25 +7,53 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
+import { Avatar, AvatarFallback } from '../ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import type { UserRole } from '@prisma/client';
 
 export function Navbar() {
   const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
-
+  const [profile, setProfile] = useState<UserRole | null>(null);
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndProfile = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
+
+      if (user) {
+        const response = await fetch('/api/profile?userId=' + user.id);
+        if (response.ok) {
+          const profileData = await response.json();
+          setProfile(profileData);
+        }
+      }
     };
 
-    fetchUser();
+    fetchUserAndProfile();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
+      async (_event, session) => {
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+
+        if (currentUser) {
+          const response = await fetch('/api/profile?userId=' + currentUser.id);
+          if (response.ok) {
+            const profileData = await response.json();
+            setProfile(profileData);
+          }
+        } else {
+          setProfile(null);
+        }
       },
     );
 
@@ -84,17 +112,47 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
+            {' '}
             {user ? (
               <div className="flex items-center gap-4">
                 <ModeToggle />
-                <p className="text-sm">{user.email}</p>{' '}
-                {/* Display user's email */}
-                <button
-                  onClick={handleLogout}
-                  className={buttonVariants({ variant: 'secondary' })}
-                >
-                  Logout
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="focus:outline-none">
+                    <Avatar className="h-8 w-8 hover:opacity-75 transition">
+                      <AvatarFallback className="bg-emerald-500 text-white">
+                        {profile?.name
+                          ? profile.name
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')
+                              .toUpperCase()
+                          : user.email?.[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <div className="flex items-center justify-start gap-2 p-2">
+                      <div className="flex flex-col space-y-1 leading-none">
+                        {profile?.name && (
+                          <p className="font-medium">{profile.name}</p>
+                        )}
+                        <p className="w-[200px] truncate text-sm text-muted-foreground">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-600"
+                      onClick={handleLogout}
+                    >
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
               <div className="flex items-center gap-4">

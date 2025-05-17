@@ -18,14 +18,93 @@ enum Role {
   @@schema("public")
 }
 
-model BlogPost {
-  id          String @id @default(cuid())
+enum TransactionType {
+  WASTE_LISTING_SALE
+  TIMBANG_SUBMISSION
+
+  @@schema("public")
+}
+
+enum WasteType {
+  RECYCLABLE
+  NON_RECYCLABLE
+
+  @@schema("public")
+}
+
+model WasteListing {
+  id          String        @id @default(cuid())
   title       String
-  content     String
+  description String
+  price       Int
   imageUrl    String
+  wasteType   WasteType
+  weight      Float // in kilograms
   authorId    String
   authorName  String
   authorImage String
+  status      ListingStatus @default(AVAILABLE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@schema("public")
+}
+
+model UserRole {
+  id           String @id @default(cuid())
+  userId       String @unique @map("user_id") @db.Uuid // Supabase auth user ID (UUID)
+  role         Role
+  saldo        Int    @default(0)
+  nilaiTimbang Int    @default(0)
+
+  name      String // Add name for display in user listing
+  email     String // Add email for contact
+  address   String   @default("")
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime @default(now())
+  isActive  Boolean  @default(true)
+
+  sellerTransactions Transaction[]   @relation("SellerTransactions")
+  buyerTransactions  Transaction[]   @relation("BuyerTransactions")
+  timbangData        TimbangData[]
+  companyProfile     CompanyProfile?
+
+  @@map("user_roles")
+  @@schema("public")
+}
+
+model Transaction {
+  id String @id @default(cuid())
+
+  amount           Int
+  status           TransactionStatus @default(PENDING)
+  type             TransactionType
+  description      String?
+  deliveryFee      Int? // Store the calculated delivery fee
+  deliveryDistance Float? // Store the calculated distance
+  isDeliveryFree   Boolean? // Store whether delivery was free
+
+  // Relationships for WasteListing transactions
+  wasteListing   WasteListing? @relation(fields: [wasteListingId], references: [id])
+  wasteListingId String?
+
+  // For both types of transactions
+  seller   UserRole @relation("SellerTransactions", fields: [sellerId], references: [userId])
+  sellerId String   @db.Uuid
+
+  // Only for WasteListing transactions
+  buyer   UserRole? @relation("BuyerTransactions", fields: [buyerId], references: [userId])
+  buyerId String?   @db.Uuid
+
+  // For Timbang transactions
+  timbangData TimbangData?
+
+  // For delivery scheduling
+  pickupSchedule PickupSchedule?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -33,11 +112,130 @@ model BlogPost {
   @@schema("public")
 }
 
-model UserRole {
-  id     String @id @default(cuid())
-  userId String @unique @map("user_id") @db.Uuid // Supabase auth user ID (UUID)
-  role   Role
+model TimbangData {
+  id        String    @id @default(cuid())
+  weight    Float // in kilograms
+  wasteType WasteType // Changed from String to WasteType enum
+  value     Int // calculated value based on weight and type
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  @@map("user_roles")
+  // Relationship with UserRole (Nasabah)
+  nasabah   UserRole @relation(fields: [nasabahId], references: [userId])
+  nasabahId String   @db.Uuid
+
+  // Relationship with Transaction
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String      @unique // one-to-one relation
+
+  @@schema("public")
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+
+  @@schema("public")
+}
+
+model MonthlyStatistics {
+  id        String    @id @default(cuid())
+  month     Int
+  year      Int
+  wasteType WasteType
+
+  totalTransactions Int      @default(0)
+  totalVolume       Float    @default(0)
+  totalValue        Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([month, year, wasteType])
+  @@schema("public")
+}
+
+model Statistics {
+  id String @id @default(cuid())
+
+  totalTransactions  Int      @default(0)
+  totalVolume        Float    @default(0)
+  totalTimbangWeight Float    @default(0)
+  totalValue         Int      @default(0)
+  wasteTypeMetrics   Json // Store per waste type metrics
+  updatedAt          DateTime @updatedAt
+
+  @@schema("public")
+}
+
+model CompanyProfile {
+  id              String  @id @default(cuid())
+  companyName     String
+  address         String
+  latitude        Float
+  longitude       Float
+  phone           String
+  description     String?
+  logo            String? // URL to company logo
+  website         String?
+  deliveryRadius  Float   @default(50) // Maximum free delivery radius in km
+  deliveryFeeBase Int     @default(10000) // Base delivery fee in Rupiah
+  feePerKm        Int     @default(1000) // Additional fee per km in Rupiah
+
+  // Waste types the company is interested in
+  acceptedWasteTypes WasteType[]
+
+  // Link to UserRole
+  userRole UserRole @relation(fields: [userId], references: [userId])
+  userId   String   @unique @db.Uuid
+
+  // Company's scheduled pickups
+  pickupSchedules PickupSchedule[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@schema("public")
+}
+
+model PickupSchedule {
+  id              String       @id @default(cuid())
+  scheduledAt     DateTime
+  status          PickupStatus @default(SCHEDULED)
+  notes           String?
+  pickupAddress   String
+  pickupLatitude  Float
+  pickupLongitude Float
+  distance        Float // Distance in km
+
+  // Related transaction
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String      @unique
+
+  // Company doing the pickup
+  company   CompanyProfile @relation(fields: [companyId], references: [id])
+  companyId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@schema("public")
+}
+
+enum PickupStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+
+  @@schema("public")
+}
+
+enum ListingStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  CANCELLED
+
   @@schema("public")
 }

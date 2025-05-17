@@ -38,9 +38,19 @@ export function RegisterForm({
             <CardDescription>
               Enter your details below to create your account
             </CardDescription>
-          </CardHeader>
+          </CardHeader>{' '}
           <form onSubmit={onSubmit}>
             <div className="grid gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

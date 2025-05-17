@@ -90,13 +90,21 @@ export async function signup(formData: FormData) {
   }
 
   const userId = signUpData.user?.id;
-
   if (userId) {
     try {
+      const name = formData.get('name') as string;
+      const email = formData.get('email') as string;
+
+      if (!name) {
+        return redirect('/error?message=Name is required.');
+      }
+
       await prisma.userRole.create({
         data: {
           userId: userId, // This is signUpData.user.id from Supabase auth
           role: selectedRole, // This is the validated Role enum
+          name: name,
+          email: email,
         },
       });
     } catch (roleError) {

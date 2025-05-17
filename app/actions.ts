@@ -18,15 +18,18 @@ export async function handleSubmission(formData: FormData) {
   const title = formData.get('title');
   const content = formData.get('content');
   const url = formData.get('url');
-
-  await prisma.blogPost.create({
+  await prisma.wasteListing.create({
     data: {
       title: title as string,
-      content: content as string,
+      description: content as string,
       imageUrl: url as string,
       authorId: user.id,
-      authorImage: user.user_metadata?.picture ?? '', // Example: use avatar_url or a default
-      authorName: user.user_metadata?.full_name ?? user.email ?? 'Anonymous', // Example: use full_name or email
+      authorImage: user.user_metadata?.picture ?? '',
+      authorName: user.user_metadata?.full_name ?? user.email ?? 'Anonymous',
+      price: 0, // This should be updated in the form
+      wasteType: 'RECYCLABLE', // This should be updated in the form
+      weight: 0, // This should be updated in the form
+      status: 'AVAILABLE',
     },
   });
 
@@ -47,15 +50,14 @@ export async function editPost(formData: FormData, id: string) {
   const title = formData.get('title');
   const content = formData.get('content');
   const url = formData.get('url');
-
-  await prisma.blogPost.update({
+  await prisma.wasteListing.update({
     where: {
       id: id,
       authorId: user.id, // ensure the user can only edit their own posts
     },
     data: {
       title: title as string,
-      content: content as string,
+      description: content as string,
       imageUrl: url as string,
     },
   });

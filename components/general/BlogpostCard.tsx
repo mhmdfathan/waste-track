@@ -1,15 +1,21 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { WasteType, ListingStatus } from '@prisma/client';
+
 interface IappProps {
   data: {
     id: string;
     title: string;
-    content: string;
+    description: string;
+    price: number;
     imageUrl: string;
+    wasteType: WasteType;
+    weight: number;
     authorId: string;
     authorName: string;
     authorImage: string;
+    status: ListingStatus;
     createdAt: Date;
     updatedAt: Date;
   };
@@ -30,11 +36,22 @@ export function BlogPostCard({ data }: IappProps) {
         <div className="p-4">
           <h3 className="mb-2 text-lg font-semibold text-primary">
             {data.title}
-          </h3>
+          </h3>{' '}
           <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
-            {data.content}
+            {data.description}
           </p>
-
+          <div className="mb-4 text-sm">
+            <p>
+              Price:{' '}
+              {new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+              }).format(data.price)}
+            </p>
+            <p>Weight: {data.weight} kg</p>
+            <p>Type: {data.wasteType.toLowerCase()}</p>
+            <p>Status: {data.status.toLowerCase()}</p>
+          </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="relative size-8 overflow-hidden rounded-full border border-secondary/20">
