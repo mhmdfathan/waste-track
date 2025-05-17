@@ -1,9 +1,12 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/lib/utils';
-import { handleSubmission } from '@/app/actions';
-// import { Submitbutton } from '@/components/general/Submitbutton';
+import { editPost } from '@/app/actions';
+import { v4 as uuidv4 } from 'uuid';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Submitbutton } from '@/components/general/Submitbutton';
 import {
   Card,
   CardContent,
@@ -11,17 +14,21 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { v4 as uuidv4 } from 'uuid';
-import Image from 'next/image';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { WasteListing } from '@prisma/client';
 import { toast } from 'sonner';
 
-export default function CreateBlogRoute() {
+type EditFormProps = {
+  listing: WasteListing;
+  id: string;
+};
+
+export function EditForm({ listing, id }: EditFormProps) {
   const [uploading, setUploading] = useState(false);
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState(listing.imageUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -30,6 +37,8 @@ export default function CreateBlogRoute() {
 
     try {
       setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
@@ -41,43 +50,40 @@ export default function CreateBlogRoute() {
         throw new Error('Only JPEG, JPG and PNG files are allowed');
       }
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const { data, error: uploadError } = await supabase.storage
+      const { error } = await supabase.storage
         .from('images')
         .upload(fileName, file);
 
-      if (uploadError) {
-        console.log('Supabase upload error:', uploadError);
-        throw new Error(uploadError.message || 'Error uploading file');
-      }
-
-      if (!data) {
-        throw new Error('No data returned from upload');
+      if (error) {
+        throw error;
       }
 
       const { data: publicUrlData } = supabase.storage
         .from('images')
-        .getPublicUrl(data.path);
+        .getPublicUrl(fileName);
 
       setImageUrl(publicUrlData.publicUrl);
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
-      const errorMessage =
-        error instanceof Error ? error.message : 'Error uploading image';
-      console.log('Detailed upload error:', { error }); // This will help with debugging
-      toast.error(errorMessage);
+      toast.error(
+        error instanceof Error ? error.message : 'Error uploading image',
+      );
     } finally {
       setUploading(false);
     }
   }
 
-  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (!imageUrl) {
-      e.preventDefault();
-      toast.error('Please upload an image first');
-      return;
+  async function editAction(formData: FormData) {
+    try {
+      formData.set('url', imageUrl);
+      await editPost(formData, id);
+      toast.success('Listing updated successfully');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Error updating listing',
+      );
+      throw error;
     }
   }
 
@@ -85,15 +91,11 @@ export default function CreateBlogRoute() {
     <div className="container mx-auto max-w-4xl p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Create Listing</CardTitle>
-          <CardDescription>Create a new listing for your waste</CardDescription>
+          <CardTitle>Edit Listing</CardTitle>
+          <CardDescription>Update your waste listing details</CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            className="flex flex-col gap-6"
-            action={handleSubmission}
-            onSubmit={handleFormSubmit}
-          >
+          <form className="flex flex-col gap-6" action={editAction}>
             <div className="flex flex-col gap-2">
               <Label>Title</Label>
               <Input
@@ -101,6 +103,7 @@ export default function CreateBlogRoute() {
                 required
                 type="text"
                 placeholder="Enter listing title"
+                defaultValue={listing.title}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -110,6 +113,7 @@ export default function CreateBlogRoute() {
                 required
                 placeholder="Describe your waste listing in detail"
                 className="min-h-[100px]"
+                defaultValue={listing.description}
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -121,6 +125,7 @@ export default function CreateBlogRoute() {
                   type="number"
                   min="0"
                   placeholder="Enter price in Rupiah"
+                  defaultValue={listing.price}
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -132,6 +137,7 @@ export default function CreateBlogRoute() {
                   min="0"
                   step="0.1"
                   placeholder="Enter weight in kg"
+                  defaultValue={listing.weight}
                 />
               </div>
             </div>
@@ -140,6 +146,7 @@ export default function CreateBlogRoute() {
               <select
                 name="wasteType"
                 required
+                defaultValue={listing.wasteType}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="">Select waste type</option>
@@ -156,8 +163,6 @@ export default function CreateBlogRoute() {
                     accept="image/*"
                     ref={fileInputRef}
                     onChange={handleFileChange}
-                    required
-                    disabled={uploading}
                     className="hidden"
                     id="imageUpload"
                   />
@@ -165,7 +170,7 @@ export default function CreateBlogRoute() {
                     <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-lg">
                       <Image
                         src={imageUrl}
-                        alt="Uploaded"
+                        alt="Listing Image"
                         fill
                         className="object-cover"
                       />
@@ -208,16 +213,21 @@ export default function CreateBlogRoute() {
                       document.getElementById('imageUpload')?.click()
                     }
                   >
-                    {uploading ? 'Uploading...' : 'Choose Image'}
+                    {uploading
+                      ? 'Uploading...'
+                      : imageUrl
+                      ? 'Change Image'
+                      : 'Choose Image'}
                   </Button>
                 </CardContent>
               </Card>
               <input type="hidden" name="url" value={imageUrl} />
             </div>
             <div className="flex justify-end gap-4">
-              <Button type="submit" disabled={uploading || !imageUrl}>
-                Create Listing
+              <Button variant="outline" asChild>
+                <Link href="/dashboard">Cancel</Link>
               </Button>
+              <Submitbutton />
             </div>
           </form>
         </CardContent>

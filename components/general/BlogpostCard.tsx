@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { WasteType, ListingStatus } from '@prisma/client';
 
 interface IappProps {
@@ -24,7 +24,7 @@ interface IappProps {
 export function BlogPostCard({ data }: IappProps) {
   return (
     <div className="group relative overflow-hidden rounded-lg border border-primary/20 bg-card shadow-md transition-all hover:shadow-lg">
-      <Link href={`/post/${data.id}`} className="block w-full h-full">
+      <Link href={`/listing/${data.id}`} className="block w-full h-full">
         <div className="relative h-48 w-full overflow-hidden">
           <Image
             src={data.imageUrl}
@@ -54,14 +54,20 @@ export function BlogPostCard({ data }: IappProps) {
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="relative size-8 overflow-hidden rounded-full border border-secondary/20">
-                <Image
-                  src={data.authorImage}
-                  alt={data.authorName}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              {' '}
+              <Avatar className="h-8 w-8">
+                {data.authorImage ? (
+                  <AvatarImage src={data.authorImage} alt={data.authorName} />
+                ) : (
+                  <AvatarFallback className="bg-emerald-500 text-white">
+                    {data.authorName
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .toUpperCase()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
               <p className="text-sm font-medium">{data.authorName}</p>
             </div>
             <time className="text-xs text-muted-foreground">

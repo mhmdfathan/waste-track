@@ -45,7 +45,7 @@ export async function updateSession(request: NextRequest) {
     '/timbang',
     '/statistics',
     '/private',
-    '/post',
+    '/listing',
     '/profile',
   ];
   const isProtectedPath = protectedPaths.some((path) =>

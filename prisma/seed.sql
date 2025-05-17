@@ -15,13 +15,15 @@ VALUES
     ('clhqwktp50001mp08g7xl2w2w', '223e4567-e89b-12d3-a456-426614174001', 'PERUSAHAAN', 1000000, 0, 'PT Recycling Sejahtera', 'contact@recycling.com', 'Jl. Industri No. 5, Bandung', -6.9175, 107.6191, NOW(), true),
     ('clhqwktp50002mp08k9xl3e3e', '323e4567-e89b-12d3-a456-426614174002', 'PEMERINTAH', 0, 0, 'Dinas Lingkungan Hidup', 'dlh@jakarta.go.id', 'Jl. Pemerintah No. 10, Jakarta', -6.1751, 106.8650, NOW(), true),
     ('clhqwktp50003mp08m2xl4r4r', '423e4567-e89b-12d3-a456-426614174003', 'NASABAH', 250000, 100, 'Jane Smith', 'jane@example.com', 'Jl. Nasabah No. 2, Jakarta', -6.2156, 106.8451, NOW(), true),
-    ('clhqwktp50004mp08p5xl5t5t', '523e4567-e89b-12d3-a456-426614174004', 'PERUSAHAAN', 750000, 0, 'PT Green Solutions', 'info@greensolutions.com', 'Jl. Hijau No. 15, Surabaya', -7.2575, 112.7521, NOW(), true);
+    ('clhqwktp50004mp08p5xl5t5t', '523e4567-e89b-12d3-a456-426614174004', 'PERUSAHAAN', 750000, 0, 'PT Green Solutions', 'info@greensolutions.com', 'Jl. Hijau No. 15, Surabaya', -7.2575, 112.7521, NOW(), true),
+    ('clhqwktp50007mp08u1xl8i8i', '623e4567-e89b-12d3-a456-426614174005', 'PERUSAHAAN', 1000000, 0, 'EcoWaste Solutions', 'admin@ecowaste.com', 'Jl. Lingkungan No. 25, Jakarta', -6.2000, 106.8167, NOW(), true);
 
 -- Insert CompanyProfiles
 INSERT INTO "public"."CompanyProfile" ("id", "companyName", "address", "latitude", "longitude", "phone", "description", "logo", "website", "deliveryRadius", "deliveryFeeBase", "feePerKm", "acceptedWasteTypes", "userId", "createdAt", "updatedAt")
 VALUES
     ('clhqwktp50005mp08r7xl6y6y', 'PT Recycling Sejahtera', 'Jl. Industri No. 5, Bandung', -6.9175, 107.6191, '08123456789', 'Specialist in recycling all types of waste materials', 'https://example.com/logos/recycling.png', 'https://recycling.com', 50, 10000, 1000, ARRAY['RECYCLABLE', 'NON_RECYCLABLE']::public."WasteType"[], '223e4567-e89b-12d3-a456-426614174001', NOW(), NOW()),
-    ('clhqwktp50006mp08t9xl7u7u', 'PT Green Solutions', 'Jl. Hijau No. 15, Surabaya', -7.2575, 112.7521, '08198765432', 'Eco-friendly waste management solutions', 'https://example.com/logos/green.png', 'https://greensolutions.com', 40, 12000, 1200, ARRAY['RECYCLABLE']::public."WasteType"[], '523e4567-e89b-12d3-a456-426614174004', NOW(), NOW());
+    ('clhqwktp50006mp08t9xl7u7u', 'PT Green Solutions', 'Jl. Hijau No. 15, Surabaya', -7.2575, 112.7521, '08198765432', 'Eco-friendly waste management solutions', 'https://example.com/logos/green.png', 'https://greensolutions.com', 40, 12000, 1200, ARRAY['RECYCLABLE']::public."WasteType"[], '523e4567-e89b-12d3-a456-426614174004', NOW(), NOW()),
+    ('clhqwktp50008mp08v3xl9o9o', 'EcoWaste Solutions', 'Jl. Lingkungan No. 25, Jakarta', -6.2000, 106.8167, '08111222333', 'Leading provider of sustainable waste management', 'https://example.com/logos/ecowaste.png', 'https://ecowaste.com', 45, 11000, 1100, ARRAY['RECYCLABLE', 'NON_RECYCLABLE']::public."WasteType"[], '623e4567-e89b-12d3-a456-426614174005', NOW(), NOW());
 
 -- Insert WasteListings
 INSERT INTO "public"."WasteListing" ("id", "title", "description", "price", "imageUrl", "wasteType", "weight", "authorId", "authorName", "authorImage", "status", "createdAt", "updatedAt")
