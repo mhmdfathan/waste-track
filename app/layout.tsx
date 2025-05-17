@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/general/Navbar';
 import { BottomNav } from '@/components/general/BottomNav';
-import { AuthProvider } from '@/components/general/AuthProvider';
 import { ThemeProvider } from '@/components/theme-provider';
 
 const geistSans = Geist({
@@ -27,23 +26,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AuthProvider>
-      <html lang="en" suppressHydrationWarning style={{ overflowY: 'scroll' }}>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col`}
+    <html lang="en" suppressHydrationWarning style={{ overflowY: 'scroll' }}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col`}
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
         >
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Navbar />
-            <main className="flex-1 pt-24 pb-20">{children}</main>
-            <BottomNav />
-          </ThemeProvider>
-        </body>
-      </html>
-    </AuthProvider>
+          <Navbar />
+          <main className="flex-1 pt-24 pb-20">{children}</main>
+          <BottomNav />
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

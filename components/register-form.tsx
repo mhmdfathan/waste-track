@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Role } from '@prisma/client'; // Import Role enum
 
 interface RegisterFormProps {
   className?: string;
@@ -56,14 +57,16 @@ export function RegisterForm({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="role">Role</Label>
-                <Select name="role" required>
+                <Select name="role" required defaultValue={Role.NASABAH}>
+                  {' '}
+                  {/* Set a default value if desired */}
                   <SelectTrigger id="role">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="nasabah">Nasabah</SelectItem>
-                    <SelectItem value="perusahaan">Perusahaan</SelectItem>
-                    <SelectItem value="pemerintah">Pemerintah</SelectItem>
+                    <SelectItem value={Role.NASABAH}>Nasabah</SelectItem>
+                    <SelectItem value={Role.PERUSAHAAN}>Perusahaan</SelectItem>
+                    <SelectItem value={Role.PEMERINTAH}>Pemerintah</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

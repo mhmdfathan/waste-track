@@ -24,7 +24,7 @@ export default function LoginPage() {
     }
 
     if (data?.user) {
-      router.push('/dashboard');
+      router.push('/'); // Changed from '/dashboard' to '/'
       router.refresh();
     }
   }

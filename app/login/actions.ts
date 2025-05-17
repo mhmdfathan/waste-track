@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { createClient } from '@/lib/supabase/server';
+import { Role } from '@prisma/client'; // Import Role enum
+import prisma from '@/app/utils/db'; // Corrected import path
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -34,19 +36,18 @@ export async function login(formData: FormData) {
       // Handle error, e.g., redirect to an error page or proceed without role
     }
 
-    // You can now use roleData?.role
-    // For example, store it in a session or redirect based on role
+    // roleData?.role will be of type Role (e.g., Role.NASABAH)
     if (roleData?.role) {
       console.log('User role:', roleData.role);
       // Example: redirect based on role
       // switch (roleData.role) {
-      //   case 'nasabah':
+      //   case Role.NASABAH:
       //     redirect('/dashboard/nasabah');
       //     break;
-      //   case 'perusahaan':
+      //   case Role.PERUSAHAAN:
       //     redirect('/dashboard/perusahaan');
       //     break;
-      //   case 'pemerintah':
+      //   case Role.PEMERINTAH:
       //     redirect('/dashboard/pemerintah');
       //     break;
       //   default:
@@ -64,21 +65,21 @@ export async function signup(formData: FormData) {
 
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const role = formData.get('role') as string; // Get role
+  const roleInput = formData.get('role') as string;
 
-  if (!email || !password || !role) {
+  if (!email || !password || !roleInput) {
     return redirect('/error?message=Email, password, and role are required.');
+  }
+
+  // Validate roleInput against Role enum
+  const selectedRole = roleInput.toUpperCase() as Role;
+  if (!Object.values(Role).includes(selectedRole)) {
+    return redirect(`/error?message=Invalid role selected: ${roleInput}`);
   }
 
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
     email,
     password,
-    options: {
-      // Store role in user_metadata if you still want it there for quick client-side access
-      // data: {
-      //   role: role,
-      // },
-    },
   });
 
   if (signUpError) {
@@ -91,20 +92,37 @@ export async function signup(formData: FormData) {
   const userId = signUpData.user?.id;
 
   if (userId) {
-    const { error: roleError } = await supabase
-      .from('user_roles') // Make sure this matches your table name in Prisma schema
-      .insert([{ user_id: userId, role: role }]);
-
-    if (roleError) {
-      console.error('Role insert error:', roleError.message);
-      // Optionally, handle this error, e.g., by deleting the user or redirecting to an error page
+    try {
+      await prisma.userRole.create({
+        data: {
+          userId: userId, // This is signUpData.user.id from Supabase auth
+          role: selectedRole, // This is the validated Role enum
+        },
+      });
+    } catch (roleError) {
+      let errorMessage = 'An unknown error occurred while saving the role.';
+      if (roleError instanceof Error) {
+        errorMessage = roleError.message;
+      }
+      console.error('Role insert error (Prisma):', errorMessage);
+      // Attempt to clean up the created user in Supabase auth if role insertion fails
+      if (signUpData.user) {
+        const { error: deleteUserError } = await supabase.auth.admin.deleteUser(
+          signUpData.user.id,
+        );
+        if (deleteUserError) {
+          console.error(
+            'Failed to delete user after role insert error:',
+            deleteUserError.message,
+          );
+        }
+      }
       return redirect(
-        `/error?message=Error saving role: ${encodeURIComponent(
-          roleError.message,
-        )}`,
+        `/error?message=Error saving role: ${encodeURIComponent(errorMessage)}`,
       );
     }
   }
 
+  revalidatePath('/');
   redirect('/verify-email'); // Redirect to verify email page
 }

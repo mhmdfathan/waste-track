@@ -1,7 +1,8 @@
 import { buttonVariants } from '@/components/ui/button';
 import Link from 'next/link';
-import { prisma } from '../utils/db';
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
+import prisma from '@/app/utils/db';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { BlogPostCard } from '@/components/general/BlogpostCard';
 
 async function getData(userId: string) {
@@ -18,10 +19,16 @@ async function getData(userId: string) {
 }
 
 export default async function DashboardRoute() {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const data = await getData(user?.id);
+  if (!user) {
+    return redirect('/login');
+  }
+
+  const data = await getData(user.id);
 
   return (
     <div className="container max-w-7xl mx-auto p-6 space-y-8">

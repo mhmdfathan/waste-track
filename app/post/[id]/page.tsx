@@ -1,4 +1,4 @@
-import { prisma } from '@/app/utils/db';
+import prisma from '@/app/utils/db';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
@@ -20,8 +20,6 @@ async function getData(id: string) {
 }
 
 type Params = Promise<{ id: string }>;
-
-// ...existing code...
 
 export default async function IdPage({ params }: { params: Params }) {
   const { id } = await params;

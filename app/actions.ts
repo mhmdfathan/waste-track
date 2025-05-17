@@ -1,16 +1,18 @@
 'use server';
 
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
-import { prisma } from './utils/db';
+import { createClient } from '@/lib/supabase/server';
+import prisma from '@/app/utils/db';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
 export async function handleSubmission(formData: FormData) {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  const supabase = await createClient(); // Correct: createClient() is not a promise here
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    return redirect('/api/auth/register');
+    return redirect('/login'); // Redirect to Supabase login
   }
 
   const title = formData.get('title');
@@ -23,8 +25,8 @@ export async function handleSubmission(formData: FormData) {
       content: content as string,
       imageUrl: url as string,
       authorId: user.id,
-      authorImage: user.picture as string,
-      authorName: user.given_name as string,
+      authorImage: user.user_metadata?.picture ?? '', // Example: use avatar_url or a default
+      authorName: user.user_metadata?.full_name ?? user.email ?? 'Anonymous', // Example: use full_name or email
     },
   });
 
@@ -33,11 +35,13 @@ export async function handleSubmission(formData: FormData) {
 }
 
 export async function editPost(formData: FormData, id: string) {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  const supabase = await createClient(); // Correct: createClient() is not a promise here
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    return redirect('/api/auth/register');
+    return redirect('/login'); // Redirect to Supabase login
   }
 
   const title = formData.get('title');
