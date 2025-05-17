@@ -75,7 +75,6 @@ export async function updateSession(request: NextRequest) {
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path),
   );
-
   // Public paths that don't require authentication
   const publicPaths = ['/login', '/register', '/auth', '/verify-email'];
   const isPublicPath = publicPaths.some((path) =>
@@ -87,6 +86,16 @@ export async function updateSession(request: NextRequest) {
     isPublicPath,
     currentPath: request.nextUrl.pathname,
   });
+
+  // If user is logged in and tries to access login/register pages, redirect to home
+  if (user && isPublicPath) {
+    console.log(
+      '[Middleware Debug] Authenticated user attempting to access public route - redirecting to /',
+    );
+    const redirectUrl = new URL('/', request.url);
+    return NextResponse.redirect(redirectUrl);
+  }
+
   if (!user && isProtectedPath) {
     // If user is not logged in and trying to access protected route
     console.log(

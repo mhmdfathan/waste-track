@@ -23,41 +23,14 @@ export async function login(formData: FormData) {
   if (signInError) {
     redirect('/error');
   }
-
   if (signInData.user) {
-    const { data: roleData, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', signInData.user.id)
-      .single();
-
-    if (roleError) {
-      console.error('Error fetching role:', roleError.message);
-      // Handle error, e.g., redirect to an error page or proceed without role
-    }
-
-    // roleData?.role will be of type Role (e.g., Role.NASABAH)
-    if (roleData?.role) {
-      console.log('User role:', roleData.role);
-      // Example: redirect based on role
-      // switch (roleData.role) {
-      //   case Role.NASABAH:
-      //     redirect('/dashboard/nasabah');
-      //     break;
-      //   case Role.PERUSAHAAN:
-      //     redirect('/dashboard/perusahaan');
-      //     break;
-      //   case Role.PEMERINTAH:
-      //     redirect('/dashboard/pemerintah');
-      //     break;
-      //   default:
-      //     redirect('/');
-      // }
-    }
+    // No need to check roles here since middleware handles access control
+    revalidatePath('/', 'layout');
+    return redirect('/');
   }
 
-  revalidatePath('/', 'layout');
-  redirect('/');
+  // If we get here without a user, something went wrong
+  return redirect('/error');
 }
 
 export async function signup(formData: FormData) {

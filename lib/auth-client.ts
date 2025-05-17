@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createClient } from '@/lib/supabase/client';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import prisma from '@/app/utils/db';
 
 export async function getUserProfileClient() {

@@ -25,8 +25,10 @@ export default function LoginPage() {
     }
 
     if (data?.user) {
-      router.push('/'); // Changed from '/dashboard' to '/'
+      // First refresh to update server state
       router.refresh();
+      // Then redirect to home page
+      window.location.href = '/';
     }
   }
 
