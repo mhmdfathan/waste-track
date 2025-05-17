@@ -3,11 +3,24 @@
 import { LoginForm } from '@/components/login-form';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        router.replace('/');
+      }
+    };
+    checkAuth();
+  }, [supabase.auth, router]);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleLogin(formData: FormData) {
     const email = formData.get('email') as string;
@@ -28,7 +41,7 @@ export default function LoginPage() {
       // First refresh to update server state
       router.refresh();
       // Then redirect to home page
-      window.location.href = '/';
+      router.replace('/');
     }
   }
 
