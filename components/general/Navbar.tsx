@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import type { UserRole } from '@prisma/client';
+import { getProfile } from '@/app/actions';
 
 export function Navbar() {
   const router = useRouter();
@@ -28,11 +29,9 @@ export function Navbar() {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
-
       if (user) {
-        const response = await fetch('/api/profile?userId=' + user.id);
-        if (response.ok) {
-          const profileData = await response.json();
+        const profileData = await getProfile(user.id);
+        if (profileData) {
           setProfile(profileData);
         }
       }
@@ -46,9 +45,8 @@ export function Navbar() {
         setUser(currentUser);
 
         if (currentUser) {
-          const response = await fetch('/api/profile?userId=' + currentUser.id);
-          if (response.ok) {
-            const profileData = await response.json();
+          const profileData = await getProfile(currentUser.id);
+          if (profileData) {
             setProfile(profileData);
           }
         } else {

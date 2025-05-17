@@ -68,15 +68,17 @@ export function RegisterForm({
               <div className="grid gap-2">
                 <Label htmlFor="role">Role</Label>
                 <Select name="role" required defaultValue={Role.NASABAH}>
-                  {' '}
-                  {/* Set a default value if desired */}
                   <SelectTrigger id="role">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={Role.NASABAH}>Nasabah</SelectItem>
-                    <SelectItem value={Role.PERUSAHAAN}>Perusahaan</SelectItem>
-                    <SelectItem value={Role.PEMERINTAH}>Pemerintah</SelectItem>
+                    <SelectItem value={Role.NASABAH}>{Role.NASABAH}</SelectItem>
+                    <SelectItem value={Role.PERUSAHAAN}>
+                      {Role.PERUSAHAAN}
+                    </SelectItem>
+                    <SelectItem value={Role.PEMERINTAH}>
+                      {Role.PEMERINTAH}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

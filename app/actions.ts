@@ -65,3 +65,12 @@ export async function editPost(formData: FormData, id: string) {
   revalidatePath('/');
   return redirect('/dashboard');
 }
+
+export async function getProfile(userId: string) {
+  const profile = await prisma.userRole.findUnique({
+    where: {
+      userId: userId,
+    },
+  });
+  return profile;
+}
