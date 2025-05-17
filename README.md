@@ -1,8 +1,5 @@
 # 📌 TrashIt – Platform Web untuk Transformasi Pengelolaan Sampah dan Bank Sampah Berkelanjutan
 
-## 🗿 Logo Aplikasi
-
-*(Sisipkan logo TrashIt di sini)*
 
 ## 👥 Tim Pengembang – Jagoan Timbang
 
