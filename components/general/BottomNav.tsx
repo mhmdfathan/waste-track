@@ -22,18 +22,26 @@ export function BottomNav() {
   const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserRole | null>(null);
-
   useEffect(() => {
+    const isMounted = true;
+
     const fetchUserAndProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        const profileData = await getUserProfileClient();
-        if (profileData) {
-          setProfile(profileData);
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!isMounted) return;
+
+        setUser(user);
+        if (user) {
+          const profileData = await getUserProfileClient();
+          if (isMounted && profileData) {
+            setProfile(profileData);
+          }
         }
+      } catch (error) {
+        console.error('Error fetching user and profile:', error);
       }
     };
 
@@ -41,12 +49,19 @@ export function BottomNav() {
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!isMounted) return;
+
         const currentUser = session?.user ?? null;
         setUser(currentUser);
+
         if (currentUser) {
-          const profileData = await getUserProfileClient();
-          if (profileData) {
-            setProfile(profileData);
+          try {
+            const profileData = await getUserProfileClient();
+            if (isMounted && profileData) {
+              setProfile(profileData);
+            }
+          } catch (error) {
+            console.error('Error fetching profile on auth change:', error);
           }
         } else {
           setProfile(null);

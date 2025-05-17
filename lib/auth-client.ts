@@ -1,32 +1,44 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createClient } from '@/lib/supabase/client';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import prisma from '@/app/utils/db';
 
 export async function getUserProfileClient() {
-  const supabase = createClient();
-
-  // Get authenticated user data directly
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    console.log(
-      '[Auth Debug] No authenticated user found:',
-      userError?.message ?? 'No user data',
-    );
-    return null;
-  }
-
-  // Get user role and include relevant relations based on role
   try {
-    const response = await fetch('/api/profile?userId=' + user.id);
-    const profile = await response.json();
+    const response = await fetch('/api/profile', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-    return profile;
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Handle unauthorized - might need to refresh session
+        const supabase = createClient();
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (session) {
+          // Retry the request if we have a session
+          const retryResponse = await fetch('/api/profile', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          if (retryResponse.ok) {
+            return retryResponse.json();
+          }
+        }
+      }
+      return null;
+    }
+
+    return response.json();
   } catch (error) {
-    console.error('[Auth Debug] Error fetching profile:', error);
+    console.error('Error fetching user profile:', error);
     return null;
   }
 }
