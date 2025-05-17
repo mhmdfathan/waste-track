@@ -4,6 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/general/Navbar';
 import { BottomNav } from '@/components/general/BottomNav';
 import { ThemeProvider } from '@/components/theme-provider';
+import { Suspense } from 'react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -37,7 +38,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Navbar />
-          <main className="flex-1 pt-24 pb-20">{children}</main>
+          <main className="flex-1 pt-24 pb-20">
+            <Suspense>{children}</Suspense>
+          </main>
           <BottomNav />
         </ThemeProvider>
       </body>
