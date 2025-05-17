@@ -8,6 +8,7 @@ export async function getUserSession() {
       data: { session },
     } = await supabase.auth.getSession();
     return session;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return null;
   }
