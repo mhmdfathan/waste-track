@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
@@ -23,7 +22,6 @@ import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 
 export function Navbar() {
-  const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
@@ -63,12 +61,16 @@ export function Navbar() {
       authListener?.subscription.unsubscribe();
     };
   }, [supabase]);
-
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push('/'); // Redirect to home page after logout
-    router.refresh(); // Refresh to ensure server components update
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
+      // Force a hard reload to clear all client state
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   return (
@@ -92,53 +94,85 @@ export function Navbar() {
                 href="/"
               >
                 Home
-              </Link>
-              {user && (
+              </Link>{' '}
+              {user && profile && (
                 <>
-                  <Link
-                    className={cn(
-                      'text-sm font-medium transition-colors hover:text-emerald-500',
-                      pathname === '/dashboard'
-                        ? 'text-emerald-500'
-                        : 'text-muted-foreground',
-                    )}
-                    href="/dashboard"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    className={cn(
-                      'text-sm font-medium transition-colors hover:text-emerald-500',
-                      pathname === '/timbang'
-                        ? 'text-emerald-500'
-                        : 'text-muted-foreground',
-                    )}
-                    href="/timbang"
-                  >
-                    Timbang
-                  </Link>
-                  <Link
-                    className={cn(
-                      'text-sm font-medium transition-colors hover:text-emerald-500',
-                      pathname === '/statistics'
-                        ? 'text-emerald-500'
-                        : 'text-muted-foreground',
-                    )}
-                    href="/statistics"
-                  >
-                    Statistics
-                  </Link>
-                  <Link
-                    className={cn(
-                      'text-sm font-medium transition-colors hover:text-emerald-500',
-                      pathname === '/transactions'
-                        ? 'text-emerald-500'
-                        : 'text-muted-foreground',
-                    )}
-                    href="/transactions"
-                  >
-                    Transactions
-                  </Link>
+                  {profile.role === 'NASABAH' && (
+                    <>
+                      <Link
+                        className={cn(
+                          'text-sm font-medium transition-colors hover:text-emerald-500',
+                          pathname === '/dashboard'
+                            ? 'text-emerald-500'
+                            : 'text-muted-foreground',
+                        )}
+                        href="/dashboard"
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        className={cn(
+                          'text-sm font-medium transition-colors hover:text-emerald-500',
+                          pathname === '/transactions'
+                            ? 'text-emerald-500'
+                            : 'text-muted-foreground',
+                        )}
+                        href="/transactions"
+                      >
+                        Transactions
+                      </Link>
+                      <Link
+                        className={cn(
+                          'text-sm font-medium transition-colors hover:text-emerald-500',
+                          pathname === '/timbang'
+                            ? 'text-emerald-500'
+                            : 'text-muted-foreground',
+                        )}
+                        href="/timbang"
+                      >
+                        Timbang
+                      </Link>
+                    </>
+                  )}
+                  {profile.role === 'PEMERINTAH' && (
+                    <>
+                      <Link
+                        className={cn(
+                          'text-sm font-medium transition-colors hover:text-emerald-500',
+                          pathname === '/statistics'
+                            ? 'text-emerald-500'
+                            : 'text-muted-foreground',
+                        )}
+                        href="/statistics"
+                      >
+                        Statistics
+                      </Link>
+                      <Link
+                        className={cn(
+                          'text-sm font-medium transition-colors hover:text-emerald-500',
+                          pathname === '/users'
+                            ? 'text-emerald-500'
+                            : 'text-muted-foreground',
+                        )}
+                        href="/users"
+                      >
+                        Users
+                      </Link>
+                    </>
+                  )}
+                  {profile.role === 'PERUSAHAAN' && (
+                    <Link
+                      className={cn(
+                        'text-sm font-medium transition-colors hover:text-emerald-500',
+                        pathname === '/transactions'
+                          ? 'text-emerald-500'
+                          : 'text-muted-foreground',
+                      )}
+                      href="/transactions"
+                    >
+                      Transactions
+                    </Link>
+                  )}
                 </>
               )}
             </div>

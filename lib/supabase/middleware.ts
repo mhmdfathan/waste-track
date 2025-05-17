@@ -38,15 +38,39 @@ export async function updateSession(request: NextRequest) {
     userId: user?.id,
     userEmail: user?.email,
   });
+  // Get user role if authenticated
+  let userRole = null;
+  if (user) {
+    try {
+      const prisma = (await import('@/app/utils/db')).default;
+      const profile = await prisma.userRole.findUnique({
+        where: {
+          userId: user.id,
+        },
+        select: {
+          role: true,
+        },
+      });
+      userRole = profile?.role;
+    } catch (error) {
+      console.error('[Middleware Debug] Error fetching user role:', error);
+    }
+  }
 
-  // Protected routes that require authentication
+  // Role-based route protection
+  const nasabahPaths = ['/dashboard', '/timbang', '/transactions'];
+  const pemerintahPaths = ['/statistics', '/users'];
+  const perusahaanPaths = ['/transactions'];
+  const commonPaths = ['/profile']; // Common protected paths for all roles
+
+  // All protected paths combined
   const protectedPaths = [
-    '/dashboard',
-    '/timbang',
-    '/statistics',
-    '/private',
-    '/listing',
-    '/profile',
+    ...new Set([
+      ...nasabahPaths,
+      ...pemerintahPaths,
+      ...perusahaanPaths,
+      ...commonPaths,
+    ]),
   ];
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path),
@@ -63,7 +87,6 @@ export async function updateSession(request: NextRequest) {
     isPublicPath,
     currentPath: request.nextUrl.pathname,
   });
-
   if (!user && isProtectedPath) {
     // If user is not logged in and trying to access protected route
     console.log(
@@ -71,6 +94,36 @@ export async function updateSession(request: NextRequest) {
     );
     const redirectUrl = new URL('/login', request.url);
     return NextResponse.redirect(redirectUrl);
+  }
+
+  // Role-based access control
+  if (user && userRole) {
+    const currentPath = request.nextUrl.pathname;
+
+    // Check if user is trying to access a path they shouldn't
+    const isNasabahPath = nasabahPaths.some((path) =>
+      currentPath.startsWith(path),
+    );
+    const isPemerintahPath = pemerintahPaths.some((path) =>
+      currentPath.startsWith(path),
+    );
+    const isPerusahaanPath = perusahaanPaths.some((path) =>
+      currentPath.startsWith(path),
+    );
+
+    const hasAccess =
+      (userRole === 'NASABAH' && isNasabahPath) ||
+      (userRole === 'PEMERINTAH' && isPemerintahPath) ||
+      (userRole === 'PERUSAHAAN' && isPerusahaanPath) ||
+      commonPaths.some((path) => currentPath.startsWith(path));
+
+    if (!hasAccess && isProtectedPath) {
+      console.log(
+        `[Middleware Debug] User with role ${userRole} attempted to access unauthorized path ${currentPath}`,
+      );
+      const redirectUrl = new URL('/', request.url);
+      return NextResponse.redirect(redirectUrl);
+    }
   }
 
   if (user && isPublicPath) {
