@@ -1,7 +1,7 @@
 'use client';
 
 import { LoginForm } from '@/components/login-form';
-import { supabase } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -13,6 +13,7 @@ export default function LoginPage() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
+    const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
