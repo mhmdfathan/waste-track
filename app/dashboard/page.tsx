@@ -3,7 +3,7 @@ import Link from 'next/link';
 import prisma from '@/app/utils/db';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { BlogPostCard } from '@/components/general/BlogpostCard';
+import { WasteListingCard } from '@/components/general/WasteListingCard';
 
 async function getData(userId: string) {
   const data = await prisma.wasteListing.findMany({
@@ -50,7 +50,7 @@ export default async function DashboardRoute() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {data.map((item) => (
-          <BlogPostCard data={item} key={item.id} />
+          <WasteListingCard data={item} key={item.id} />
         ))}
       </div>
     </div>

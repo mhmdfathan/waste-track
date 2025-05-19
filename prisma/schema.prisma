@@ -18,6 +18,48 @@ enum Role {
   @@schema("public")
 }
 
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+
+  @@schema("public")
+}
+
+model Post {
+  id         String     @id @default(cuid())
+  title      String
+  slug       String     @unique
+  content    String     @db.Text
+  imageUrl   String     @map("image_url")
+  excerpt    String?    @db.Text // Short description of the post
+  status     PostStatus @default(DRAFT)
+  authorId   String     @map("author_id") @db.Uuid
+  categoryId String     @map("category_id")
+  viewCount  Int        @default(0) @map("view_count")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  author     UserRole   @relation(fields: [authorId], references: [userId], onDelete: Cascade)
+  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("posts")
+  @@schema("public")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?  @db.Text
+  totalPosts  Int      @default(0) @map("total_posts")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  posts       Post[]
+
+  @@map("categories")
+  @@schema("public")
+}
+
 enum TransactionType {
   WASTE_LISTING_SALE
   TIMBANG_SUBMISSION
@@ -62,6 +104,7 @@ model UserRole {
 
   name      String // Add name for display in user listing
   email     String // Add email for contact
+  image     String? // Profile image URL
   address   String   @default("")
   latitude  Float?
   longitude Float?
@@ -72,6 +115,7 @@ model UserRole {
   buyerTransactions  Transaction[]   @relation("BuyerTransactions")
   timbangData        TimbangData[]
   companyProfile     CompanyProfile?
+  posts              Post[]
 
   @@map("user_roles")
   @@schema("public")
