@@ -190,6 +190,19 @@ export async function requireRole(allowedRoles: Role[]) {
   return { session, profile };
 }
 
+export async function isAdmin(profile: { role: Role } | null) {
+  return profile?.role === 'ADMIN';
+}
+
+export async function requireAdmin() {
+  const { session, profile } = await requireRole(['ADMIN']);
+  if (!profile || profile.role !== 'ADMIN') {
+    console.log('[Auth Debug] Not an admin, redirecting to /error');
+    redirect('/error');
+  }
+  return { session, profile };
+}
+
 export async function redirectIfAuthenticated() {
   const session = await getUserSession();
   if (session) {

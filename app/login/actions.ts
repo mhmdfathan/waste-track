@@ -44,6 +44,26 @@ export async function signup(formData: FormData) {
     return redirect('/error?message=Email, password, and role are required.');
   }
 
+  // For admin creation, verify that the request comes from an existing admin
+  if (roleInput.toUpperCase() === Role.ADMIN) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return redirect('/error?message=Unauthorized to create admin accounts');
+    }
+
+    const currentUserRole = await prisma.userRole.findUnique({
+      where: { userId: user.id },
+    });
+
+    if (!currentUserRole || currentUserRole.role !== Role.ADMIN) {
+      return redirect(
+        '/error?message=Only existing admins can create new admin accounts',
+      );
+    }
+  }
+
   // Validate roleInput against Role enum
   const selectedRole = roleInput.toUpperCase() as Role;
   if (!Object.values(Role).includes(selectedRole)) {
@@ -66,7 +86,6 @@ export async function signup(formData: FormData) {
   if (userId) {
     try {
       const name = formData.get('name') as string;
-      const email = formData.get('email') as string;
 
       if (!name) {
         return redirect('/error?message=Name is required.');
@@ -74,8 +93,8 @@ export async function signup(formData: FormData) {
 
       await prisma.userRole.create({
         data: {
-          userId: userId, // This is signUpData.user.id from Supabase auth
-          role: selectedRole, // This is the validated Role enum
+          userId: userId,
+          role: selectedRole,
           name: name,
           email: email,
         },
@@ -105,5 +124,5 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath('/');
-  redirect('/verify-email'); // Redirect to verify email page
+  redirect('/verify-email');
 }
