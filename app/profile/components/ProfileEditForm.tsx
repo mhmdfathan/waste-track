@@ -18,9 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { updateUserProfile } from '../actions';
 import { toast } from 'sonner';
+import { createClient } from '@/lib/supabase/client';
+import { Card, CardContent } from '@/components/ui/card';
+import Image from 'next/image';
+import { QrCode } from 'lucide-react';
 
 interface ProfileEditFormProps {
   profile: any; // Replace with proper type
@@ -29,10 +33,13 @@ interface ProfileEditFormProps {
 
 export function ProfileEditForm({ profile, onUpdate }: ProfileEditFormProps) {
   const [open, setOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: profile.name,
     email: profile.email,
     address: profile.address || '',
+    qrisCode: profile.qrisCode || '',
     phone: profile.companyProfile?.phone || '',
     companyName: profile.companyProfile?.companyName || '',
     description: profile.companyProfile?.description || '',
@@ -58,6 +65,48 @@ export function ProfileEditForm({ profile, onUpdate }: ProfileEditFormProps) {
 
   const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `qris-${profile.userId}-${Date.now()}.${fileExt}`;
+      const supabase = createClient();
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size must be less than 5MB');
+      }
+
+      // Validate file type
+      if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+        throw new Error('Only JPEG, JPG and PNG files are allowed');
+      }
+
+      const { error: uploadError } = await supabase.storage
+        .from('qris')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('qris')
+        .getPublicUrl(fileName);
+
+      handleChange('qrisCode', publicUrlData.publicUrl);
+      toast.success('QRIS code image uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading QRIS code:', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Error uploading QRIS code',
+      );
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -101,6 +150,62 @@ export function ProfileEditForm({ profile, onUpdate }: ProfileEditFormProps) {
             />
           </div>
 
+          {profile.role === 'NASABAH' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>QRIS Code Image</Label>
+                <Card className="border-dashed">
+                  <CardContent className="flex flex-col items-center gap-4 pt-6">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="qrisUpload"
+                    />
+                    {formData.qrisCode ? (
+                      <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-lg">
+                        <Image
+                          src={formData.qrisCode}
+                          alt="QRIS Code"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <div className="rounded-full bg-muted p-4">
+                          <QrCode className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Click to upload or drag and drop
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          PNG, JPG or JPEG (max. 5MB)
+                        </p>
+                      </div>
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading}
+                      onClick={() =>
+                        document.getElementById('qrisUpload')?.click()
+                      }
+                    >
+                      {uploading
+                        ? 'Uploading...'
+                        : formData.qrisCode
+                        ? 'Change QRIS Code'
+                        : 'Upload QRIS Code'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
           {profile.role === 'PERUSAHAAN' && (
             <>
               <div className="grid grid-cols-2 gap-4">
@@ -123,7 +228,6 @@ export function ProfileEditForm({ profile, onUpdate }: ProfileEditFormProps) {
                   />
                 </div>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="website">Website</Label>
                 <Input
@@ -133,7 +237,6 @@ export function ProfileEditForm({ profile, onUpdate }: ProfileEditFormProps) {
                   onChange={(e) => handleChange('website', e.target.value)}
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -142,7 +245,6 @@ export function ProfileEditForm({ profile, onUpdate }: ProfileEditFormProps) {
                   onChange={(e) => handleChange('description', e.target.value)}
                 />
               </div>
-
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="deliveryRadius">Delivery Radius (km)</Label>
@@ -179,14 +281,13 @@ export function ProfileEditForm({ profile, onUpdate }: ProfileEditFormProps) {
                     }
                   />
                 </div>
-              </div>
-
+              </div>{' '}
               <div className="space-y-2">
                 <Label>Accepted Waste Types</Label>
                 <Select
-                  value={formData.acceptedWasteTypes}
+                  value={formData.acceptedWasteTypes[0]}
                   onValueChange={(value) =>
-                    handleChange('acceptedWasteTypes', value)
+                    handleChange('acceptedWasteTypes', [value])
                   }
                 >
                   <SelectTrigger>

@@ -106,6 +106,7 @@ model UserRole {
   name      String // Add name for display in user listing
   email     String // Add email for contact
   image     String? // Profile image URL
+  qrisCode  String? // QRIS code image URL for payments
   address   String   @default("")
   latitude  Float?
   longitude Float?

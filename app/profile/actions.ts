@@ -10,6 +10,7 @@ export async function updateUserProfile(data: {
   address: string;
   latitude?: number;
   longitude?: number;
+  qrisCode?: string; // Add QRIS code field
   phone?: string;
   companyName?: string;
   description?: string;
@@ -41,6 +42,7 @@ export async function updateUserProfile(data: {
         address: data.address,
         latitude: data.latitude,
         longitude: data.longitude,
+        qrisCode: data.qrisCode, // Add QRIS code update
       },
       include: {
         companyProfile: true,

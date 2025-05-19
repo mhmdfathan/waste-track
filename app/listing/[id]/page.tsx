@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { createClient } from '@/lib/supabase/server';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -29,7 +30,27 @@ async function getData(id: string) {
     return notFound();
   }
 
-  return data;
+  // Get the seller's info separately since it's in UserRole
+  const seller = await prisma.userRole.findFirst({
+    where: { userId: data.authorId },
+    select: {
+      name: true,
+      role: true,
+      email: true,
+      qrisCode: true,
+    },
+  });
+
+  if (!seller) {
+    return notFound();
+  }
+
+  return {
+    ...data,
+    seller,
+    authorName: seller.name || seller.email || 'Anonymous',
+    authorImage: '/placeholder-avatar.png', // Using a placeholder image
+  };
 }
 
 type Params = Promise<{ id: string }>;
@@ -207,40 +228,84 @@ export default async function IdPage({ params }: { params: Params }) {
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>Contact Seller</DialogTitle>
+                            <DialogTitle>Contact & Payment Options</DialogTitle>
                             <DialogDescription>
-                              Here&apos;s the seller&apos;s contact details.
+                              Contact the seller or pay via QRIS code.
                             </DialogDescription>
                           </DialogHeader>
-                          <div className="flex flex-col gap-4">
-                            <div className="flex items-center gap-4">
-                              <Avatar className="h-16 w-16">
-                                <AvatarImage
-                                  src={data.authorImage}
-                                  alt={data.authorName}
-                                />
-                                <AvatarFallback>
-                                  {data.authorName[0]}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="font-medium text-lg">
-                                  {data.authorName}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Waste Seller
-                                </p>
+                          <Tabs defaultValue="contact" className="w-full">
+                            <TabsList className="grid w-full grid-cols-2">
+                              <TabsTrigger value="contact">
+                                Contact Details
+                              </TabsTrigger>
+                              <TabsTrigger
+                                value="payment"
+                                disabled={!data.seller.qrisCode}
+                              >
+                                Pay with QRIS
+                              </TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="contact">
+                              <div className="flex flex-col gap-4">
+                                <div className="flex items-center gap-4">
+                                  <Avatar className="h-16 w-16">
+                                    <AvatarImage
+                                      src={data.authorImage}
+                                      alt={data.authorName}
+                                    />
+                                    <AvatarFallback>
+                                      {data.authorName[0]}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <p className="font-medium text-lg">
+                                      {data.authorName}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                      Waste Seller
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-muted-foreground">
+                                    Email
+                                  </p>
+                                  <p className="text-lg font-medium">
+                                    {data.seller.email}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-sm font-medium text-muted-foreground">
-                                Phone Number
-                              </p>
-                              <p className="text-lg font-medium">
-                                +62 812-3456-7890
-                              </p>
-                            </div>
-                          </div>
+                            </TabsContent>
+                            <TabsContent value="payment">
+                              {data.seller.qrisCode ? (
+                                <div className="flex flex-col items-center gap-4">
+                                  <div className="relative aspect-square w-full max-w-[300px] overflow-hidden rounded-lg">
+                                    <Image
+                                      src={data.seller.qrisCode}
+                                      alt="QRIS Payment Code"
+                                      fill
+                                      className="object-contain"
+                                    />
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="text-lg font-medium mb-2">
+                                      {formatToRupiah(data.price)}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                      Scan the QRIS code above to pay
+                                    </p>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="text-center py-8">
+                                  <p className="text-muted-foreground">
+                                    The seller hasn&apos;t set up QRIS payments
+                                    yet.
+                                  </p>
+                                </div>
+                              )}
+                            </TabsContent>
+                          </Tabs>
                           <DialogFooter className="mt-4">
                             <Button
                               variant="outline"
