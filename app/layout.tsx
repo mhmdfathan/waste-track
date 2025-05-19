@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { Header } from '@/components/general/Header';
+import { MainNav } from '@/components/general/MainNav';
 import { Footer } from '@/components/general/Footer';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Suspense } from 'react';
@@ -37,7 +37,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
+          <MainNav />
           <main className="flex-1">
             <Suspense>{children}</Suspense>
           </main>

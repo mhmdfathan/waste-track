@@ -50,40 +50,40 @@ export default function AboutPage() {
               <CardContent className="p-6">
                 <TabsContent value="about">
                   <div className="space-y-6">
-                    <h3 className="text-2xl font-bold">
-                      Apa itu Dipo Waste Bank?
-                    </h3>
+                    {' '}
+                    <h3 className="text-2xl font-bold">Apa itu TrashIt?</h3>
                     <div className="space-y-4 text-muted-foreground">
                       <p>
-                        Dipo Waste Bank (DWB) adalah bank sampah kampus yang
-                        didirikan untuk melayani kontribusi aktif Civitas
-                        Akademika Universitas Diponegoro (CAK UDI) dalam
-                        pengelolaan sampah di dalam kampus. DWB diharapkan dapat
+                        {' '}
+                        TrashIt adalah bank sampah kampus yang didirikan untuk
+                        melayani kontribusi aktif semua pihak dalam pengelolaan
+                        sampah di dalam kampus. TrashIt diharapkan dapat
                         mewujudkan pengelolaan sampah secara mandiri dan
-                        berkelanjutan di lingkungan Universitas Diponegoro
-                        (UNDIP). Dengan mengusung semangat sampahku tanggung
-                        jawabku, DWB ini hadir sebagai bentuk nyata tanggung
-                        jawab CAK UDI kepada lingkungan melalui kegiatan 3R
-                        (reduce, reuse, recycle).
+                        berkelanjutan di lingkungan kampus.Dengan mengusung
+                        semangat sampahku tanggung jawabku, DWB ini hadir
+                        sebagai bentuk nyata tanggung jawab CAK UDI kepada
+                        lingkungan melalui kegiatan 3R (reduce, reuse, recycle).
                       </p>
                       <p>
-                        Dalam kegiatannya DWB akan menampung sampah an-organik
-                        yang disetorkan oleh CAK UDI. Sampah yang terkumpul akan
-                        dipilah dan dijual ke pengepul sesuai jenisnya. Hasil
-                        penjualan sampah ini akan menjadi tabungan bagi para
-                        nasabah bank sampah DWB. Tabungan sampah yang telah
-                        dikonversi menjadi rupiah akan dapat diambil atau
-                        didonasikan oleh nasabah secara tunai maupun pemindah
-                        bukuan.
+                        {' '}
+                        Dalam kegiatannya TrashIt akan menampung sampah
+                        an-organik yang disetorkan oleh nasabah. Sampah yang
+                        terkumpul akan dipilah dan dijual ke pengepul sesuai
+                        jenisnya. Hasil penjualan sampah ini akan menjadi
+                        tabungan bagi para nasabah bank sampah TrashIt.Tabungan
+                        sampah yang telah dikonversi menjadi rupiah akan dapat
+                        diambil atau didonasikan oleh nasabah secara tunai
+                        maupun pemindah bukuan.
                       </p>
                       <p>
-                        Salah satu yang membedakan DWB dengan bank sampah
+                        {' '}
+                        Salah satu yang membedakan TrashIt dengan bank sampah
                         lainnya adalah pemanfaatan aplikasi berbasis web untuk
                         pengelolaan nasabah dan jumlah sampah yang disetorkan.
                         Penggunaan aplikasi ini dimaksudkan untuk menciptakan
                         layanan yang informatif dan juga untuk meminimalkan
-                        penggunaan kertas dalam kegiatan DWB. Aplikasi DWB ini
-                        dikembangkan oleh Husni Fadhilah Dhiya Ul Haq (NIM.
+                        penggunaan kertas dalam kegiatan TrashIt.Aplikasi DWB
+                        ini dikembangkan oleh Husni Fadhilah Dhiya Ul Haq (NIM.
                         24060118120034), mahasiswa Informatika Fakultas Sains
                         dan Matematika.
                       </p>

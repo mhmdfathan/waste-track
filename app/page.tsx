@@ -18,11 +18,9 @@ export default function Home() {
       <section className="relative h-[600px] w-full bg-gradient-to-r from-primary/20 to-primary/30">
         <div className="container mx-auto h-full flex items-center">
           <div className="max-w-2xl">
-            <h1 className="text-4xl font-bold mb-4 animate-fade-up">
-              DIPO WASTE BANK
-            </h1>
+            <h1 className="text-4xl font-bold mb-4 animate-fade-up">TRASHIT</h1>
             <p className="text-xl mb-8 animate-fade-up delay-200">
-              UNDIP peduli dan mandiri dalam pengelolaan sampah yang
+              TrashIt peduli dan mandiri dalam pengelolaan sampah yang
               berkelanjutan
             </p>
             <Button asChild size="lg" className="animate-fade-up delay-300">
@@ -77,9 +75,7 @@ export default function Home() {
                 </h2>
                 <p className="text-xl">
                   Bersama kami di{' '}
-                  <span className="text-green-300 font-bold">
-                    Dipo Waste Bank
-                  </span>
+                  <span className="text-green-300 font-bold">TrashIt</span>
                 </p>
               </div>
             </div>
@@ -246,8 +242,7 @@ export default function Home() {
                   ALUR PENDAFTARAN AKUN
                 </h3>
                 <p className="text-white mt-2">
-                  Ikuti alur berikut untuk mendaftar akun di Dipo Waste Bank
-                  UNDIP
+                  Ikuti alur berikut untuk mendaftar akun di TrashIt
                 </p>
               </div>
               <div className="space-y-8">
@@ -363,8 +358,8 @@ export default function Home() {
                     Lokasi
                   </CardTitle>
                   <CardDescription>
-                    Tempat Pengelolaan Sampah Terpadu (TPST) UNDIP Universitas
-                    Diponegoro, Tembalang, Semarang
+                    Tempat Pengelolaan Sampah Terpadu (TPST) TrashIt, Tembalang,
+                    Semarang
                   </CardDescription>
                 </CardHeader>
               </Card>

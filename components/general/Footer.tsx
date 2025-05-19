@@ -18,8 +18,8 @@ export function Footer() {
               />
             </Link>
             <p className="text-muted-foreground">
-              Dipo Waste Bank (DWB) mewujudkan pengelolaan sampah secara mandiri
-              dan berkelanjutan di lingkungan kampus Universitas Diponegoro
+              TrashIt mewujudkan pengelolaan sampah secara mandiri dan
+              berkelanjutan.
             </p>
             <div className="flex space-x-4">
               <a
@@ -126,10 +126,11 @@ export function Footer() {
                 </svg>
                 <div>
                   <h3 className="font-medium">
-                    Tempat Pengelolaan Sampah Terpadu (TPST) UNDIP
+                    {' '}
+                    Tempat Pengelolaan Sampah Terpadu (TPST) TrashIt
                   </h3>
                   <p className="text-muted-foreground">
-                    Universitas Diponegoro, Tembalang, Semarang
+                    TrashIt, Tembalang, Semarang
                   </p>
                 </div>
               </div>
@@ -150,7 +151,7 @@ export function Footer() {
                 </svg>
                 <div>
                   <h3 className="font-medium">081382443800</h3>
-                  <p className="text-muted-foreground">(Dipo Waste Bank)</p>
+                  <p className="text-muted-foreground">(TrashIt)</p>
                 </div>
               </div>
 
@@ -185,8 +186,8 @@ export function Footer() {
       <div className="border-t">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-muted-foreground">
-            Copyright © {new Date().getFullYear()} All rights reserved | Dipo
-            Waste Bank
+            {' '}
+            Copyright © {new Date().getFullYear()} All rights reserved | TrashIt
           </p>
         </div>
       </div>

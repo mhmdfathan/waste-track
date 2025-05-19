@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -18,14 +17,11 @@ export function Header() {
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
+            {' '}
             <Link href="/">
-              <Image
-                src="https://dipowastebank.com/assetspublic/img/logo/logo.png"
-                alt="Logo Dipo Waste Bank"
-                width={150}
-                height={50}
-                className="dark:invert"
-              />
+              <h1 className="text-3xl font-semibold">
+                Trash<span className="text-emerald-500">It</span>
+              </h1>
             </Link>
           </div>
 
