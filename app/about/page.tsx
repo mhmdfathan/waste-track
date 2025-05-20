@@ -120,19 +120,18 @@ export default function AboutPage() {
                           <h4 className="text-lg font-semibold mb-4">
                             1. Tim Manajemen
                           </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                            {[
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">                            {[
                               {
-                                src: '/placeholder-profile.jpg',
-                                title: 'CEO',
+                                name: 'Alkha',
+                                department: 'Teknik Lingkungan'
                               },
                               {
-                                src: '/placeholder-profile.jpg',
-                                title: 'CTO',
+                                name: 'Novita',
+                                department: 'Teknik Lingkungan'
                               },
                               {
-                                src: '/placeholder-profile.jpg',
-                                title: 'COO',
+                                name: 'Fathan',
+                                department: 'Teknik Komputer'
                               },
                             ].map((member, index) => (
                               <div key={index} className="space-y-4">
@@ -141,7 +140,10 @@ export default function AboutPage() {
                                     <Users className="w-12 h-12 text-muted-foreground" />
                                   </div>
                                 </div>
-                                <p className="font-medium">{member.title}</p>
+                                <div className="space-y-1">
+                                  <p className="font-medium">{member.name}</p>
+                                  <p className="text-sm text-muted-foreground">{member.department}</p>
+                                </div>
                               </div>
                             ))}
                           </div>

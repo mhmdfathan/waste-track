@@ -84,16 +84,23 @@ export default function Home() {
       </section>
 
       {/* Waste Types Section */}
-      <section className="py-24" id="about-section">
+      <section
+        className="py-24 bg-gradient-to-b from-background to-secondary/10"
+        id="about-section"
+      >
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Sampah Yang Kami Terima
-          </h2>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Sampah Yang Kami Terima</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Kami menerima berbagai jenis sampah yang dapat didaur ulang untuk
+              menciptakan lingkungan yang lebih bersih
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-8">
-              <Card>
+            <div className="space-y-8 animate-fade-right">
+              <Card className="group hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center gap-4">
-                  <div className="w-16 h-16 relative">
+                  <div className="w-16 h-16 relative group-hover:scale-110 transition-transform">
                     <Image
                       src="/waste-types/kardus.png"
                       alt="Kardus"
@@ -101,19 +108,19 @@ export default function Home() {
                       className="object-contain"
                     />
                   </div>
-                  <CardTitle>Kardus</CardTitle>
+                  <CardTitle className="text-2xl">Kardus</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>
+                  <p className="text-muted-foreground leading-relaxed">
                     Kardus yang berbentuk boks tebal yang biasanya digunakan
                     untuk tempat menyimpan benda agar benda tersebut menjadi
                     aman di dalamnya
                   </p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="group hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center gap-4">
-                  <div className="w-16 h-16 relative">
+                  <div className="w-16 h-16 relative group-hover:scale-110 transition-transform">
                     <Image
                       src="/waste-types/marga.png"
                       alt="Marga/Duplex"
@@ -121,10 +128,10 @@ export default function Home() {
                       className="object-contain"
                     />
                   </div>
-                  <CardTitle>Marga/Duplex</CardTitle>
+                  <CardTitle className="text-2xl">Marga/Duplex</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>
+                  <p className="text-muted-foreground leading-relaxed">
                     Marga/Duplex berbentuk boks tipis yang sering digunakan
                     sebagai kemasan produk dengan bentuk berbagai macam namun
                     lebih sering berbentuk balok
@@ -134,20 +141,13 @@ export default function Home() {
             </div>
 
             <div className="hidden md:flex justify-center items-center">
-              <div className="relative w-full max-h-[500px] aspect-[3/4]">
-                <Image
-                  src="https://dipowastebank.com/storage/assets/img/configuration/32a80bae4dace99f5c5b3f73fd312bec2608ae3a.png"
-                  alt="Center Image"
-                  fill
-                  className="object-contain"
-                />
-              </div>
+              <div className="w-48 h-48 rounded-full bg-primary/10 animate-pulse"></div>
             </div>
 
-            <div className="space-y-8">
-              <Card>
+            <div className="space-y-8 animate-fade-left">
+              <Card className="group hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center gap-4">
-                  <div className="w-16 h-16 relative">
+                  <div className="w-16 h-16 relative group-hover:scale-110 transition-transform">
                     <Image
                       src="https://dipowastebank.com/img/icon/kertas.png"
                       alt="Kertas"
@@ -155,18 +155,18 @@ export default function Home() {
                       className="object-contain"
                     />
                   </div>
-                  <CardTitle>Kertas</CardTitle>
+                  <CardTitle className="text-2xl">Kertas</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>
+                  <p className="text-muted-foreground leading-relaxed">
                     Kertas dengan bahan yang tipis yang dihasilkan dengan
                     kompresi serat yang berasal dari pulp dan berwarna putih
                   </p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="group hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center gap-4">
-                  <div className="w-16 h-16 relative">
+                  <div className="w-16 h-16 relative group-hover:scale-110 transition-transform">
                     <Image
                       src="/waste-types/botol.png"
                       alt="Botol Plastik"
@@ -174,10 +174,10 @@ export default function Home() {
                       className="object-contain"
                     />
                   </div>
-                  <CardTitle>Botol Plastik</CardTitle>
+                  <CardTitle className="text-2xl">Botol Plastik</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>
+                  <p className="text-muted-foreground leading-relaxed">
                     Botol Plastik yang biasanya dipakai untuk wadah minuman atau
                     lainnya. Ukurannya beragam dari botol yang berukuran kurang
                     dari 200 ml sampai lebih dari 1000 ml
@@ -281,35 +281,8 @@ export default function Home() {
               </div>
             </div>
             <div className="lg:col-span-4 flex flex-col items-center justify-center">
-              <div className="relative w-full max-w-[300px] aspect-[3/4]">
-                <Image
-                  src="https://dipowastebank.com/img/other/promo.jpg"
-                  alt="Soft Launching Dipo Waste Bank"
-                  fill
-                  className="object-cover rounded-lg"
-                />
-              </div>
-              <div className="mt-4">
-                <Button
-                  variant="outline"
-                  className="bg-white/10 hover:bg-white/20 text-white"
-                >
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M5 3l14 9-14 9V3z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                  Watch Video
-                </Button>
-              </div>
+              <div className="relative w-full max-w-[300px] aspect-[3/4]"></div>
+              <div className="mt-4"></div>
             </div>
           </div>
         </div>
@@ -410,46 +383,6 @@ export default function Home() {
                 </CardHeader>
               </Card>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Partners Section */}
-      <section className="py-24 bg-secondary/5">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Powered By</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-items-center">
-            {[
-              {
-                src: '/partners/university.png',
-                alt: 'University',
-              },
-              {
-                src: '/partners/sdgs.png',
-                alt: 'SDGs Center',
-              },
-              {
-                src: '/partners/org1.png',
-                alt: 'Organization 1',
-              },
-              {
-                src: '/partners/org2.png',
-                alt: 'Organization 2',
-              },
-              {
-                src: '/partners/org3.png',
-                alt: 'Organization 3',
-              },
-            ].map((partner, index) => (
-              <div key={index} className="relative w-32 h-20">
-                <Image
-                  src={partner.src}
-                  alt={partner.alt}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            ))}
           </div>
         </div>
       </section>
