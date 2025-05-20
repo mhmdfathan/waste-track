@@ -7,7 +7,7 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-  schemas   = ["public"] // remove "auth" to avoid permission issues
+  schemas   = ["public"]
 }
 
 enum Role {
