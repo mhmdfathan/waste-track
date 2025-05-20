@@ -38,8 +38,14 @@ export async function login(formData: FormData) {
       revalidatePath('/', 'layout');
 
       // Redirect based on role
-      if (userRole?.role === 'ADMIN') {
+      if (userRole?.role === Role.ADMIN) {
         redirect('/admin');
+      } else if (userRole?.role === Role.NASABAH) {
+        redirect('/dashboard');
+      } else if (userRole?.role === Role.PEMERINTAH) {
+        redirect('/statistics');
+      } else if (userRole?.role === Role.PERUSAHAAN) {
+        redirect('/transactions');
       } else {
         redirect('/');
       }

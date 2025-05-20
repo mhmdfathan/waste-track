@@ -1,16 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { ModeToggle } from './ModeToggle';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { getUserProfileClient } from '@/lib/auth-client';
 import type { UserRole } from '@prisma/client';
+import { useAuthStore } from '@/lib/store/auth-store';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,8 +43,7 @@ const roleNavigation = {
   ],
   PERUSAHAAN: [{ name: 'Transactions', href: '/transactions' }],
   ADMIN: [
-    { name: 'Dashboard', href: '/admin' },
-    { name: 'Pages', href: '/admin/pages' },
+    { name: 'Admin Dashboard', href: '/admin' },
     { name: 'Posts', href: '/admin/posts' },
     { name: 'Categories', href: '/admin/categories' },
     { name: 'Users', href: '/admin/users' },
@@ -57,72 +53,7 @@ const roleNavigation = {
 
 export function MainNav() {
   const pathname = usePathname();
-  const supabase = createClient();
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserRole | null>(null);
-
-  useEffect(() => {
-    const isMounted = true;
-
-    const fetchUserAndProfile = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!isMounted) return;
-
-        setUser(user);
-        if (user) {
-          const profileData = await getUserProfileClient();
-          if (isMounted && profileData) {
-            setProfile(profileData);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user and profile:', error);
-      }
-    };
-
-    fetchUserAndProfile();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (!isMounted) return;
-
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
-
-        if (currentUser) {
-          try {
-            const profileData = await getUserProfileClient();
-            if (isMounted && profileData) {
-              setProfile(profileData);
-            }
-          } catch (error) {
-            console.error('Error fetching profile on auth change:', error);
-          }
-        } else {
-          setProfile(null);
-        }
-      },
-    );
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, [supabase]);
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setProfile(null);
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
+  const { user, profile, logout } = useAuthStore();
 
   // Get the current role's navigation items
   const getCurrentRoleNavigation = () => {
@@ -131,10 +62,10 @@ export function MainNav() {
   };
 
   // Combine public and role-specific navigation
-  const combinedNavigation = [
-    ...publicNavigation,
-    ...getCurrentRoleNavigation(),
-  ];
+  const combinedNavigation = [...publicNavigation];
+  if (profile?.role) {
+    combinedNavigation.push(...getCurrentRoleNavigation());
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -194,7 +125,7 @@ export function MainNav() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-red-500 focus:text-red-500"
-                    onClick={handleLogout}
+                    onClick={() => logout()}
                   >
                     Sign Out
                   </DropdownMenuItem>

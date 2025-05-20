@@ -2,8 +2,18 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import prisma from '@/app/utils/db';
 import { CookieOptions } from '@supabase/ssr';
+import { Role } from '@prisma/client';
 
 export async function updateSession(request: NextRequest) {
+  // Skip session update for static assets and public routes
+  if (
+    request.nextUrl.pathname.startsWith('/_next') ||
+    request.nextUrl.pathname.startsWith('/api') ||
+    request.nextUrl.pathname === '/favicon.ico'
+  ) {
+    return NextResponse.next();
+  }
+
   try {
     const response = NextResponse.next({
       request: {
@@ -59,7 +69,7 @@ export async function updateSession(request: NextRequest) {
     });
 
     // Get user role if authenticated
-    let userRole = null;
+    let userRole: Role | null = null;
     if (user) {
       try {
         const profile = await prisma.userRole.findUnique({
@@ -70,15 +80,19 @@ export async function updateSession(request: NextRequest) {
             role: true,
           },
         });
-        userRole = profile?.role;
-        console.log('[Middleware Debug] User role:', userRole);
+        userRole = profile?.role ?? null;
       } catch (error) {
         console.error('[Middleware Debug] Error fetching user role:', error);
       }
     }
 
-    // Role-based route protection
-    const adminPaths = ['/admin'];
+    // Define protected paths by role
+    const adminPaths = [
+      '/admin',
+      '/admin/posts',
+      '/admin/categories',
+      '/admin/users',
+    ];
     const nasabahPaths = ['/dashboard', '/timbang', '/transactions'];
     const pemerintahPaths = ['/statistics', '/users'];
     const perusahaanPaths = ['/transactions'];
@@ -86,74 +100,63 @@ export async function updateSession(request: NextRequest) {
 
     // All protected paths combined
     const protectedPaths = [
-      ...new Set([
-        ...adminPaths,
-        ...nasabahPaths,
-        ...pemerintahPaths,
-        ...perusahaanPaths,
-        ...commonPaths,
-      ]),
+      ...adminPaths,
+      ...nasabahPaths,
+      ...pemerintahPaths,
+      ...perusahaanPaths,
+      ...commonPaths,
     ];
 
-    const isProtectedPath = protectedPaths.some((path) =>
-      request.nextUrl.pathname.startsWith(path),
+    const currentPath = request.nextUrl.pathname;
+    const isProtectedPath = protectedPaths.some(
+      (path) => currentPath === path || currentPath.startsWith(`${path}/`),
     );
 
-    // Public paths that don't require authentication
     const publicPaths = ['/login', '/register', '/auth', '/verify-email'];
-    const isPublicPath = publicPaths.some((path) =>
-      request.nextUrl.pathname.startsWith(path),
+    const isPublicPath = publicPaths.some(
+      (path) => currentPath === path || currentPath.startsWith(`${path}/`),
     );
 
-    // If user is logged in and tries to access login/register pages, redirect to home
+    // If user is logged in and tries to access public paths, redirect to home
     if (user && isPublicPath) {
       console.log(
-        '[Middleware Debug] Authenticated user attempting to access public path, redirecting to home',
+        '[Middleware Debug] Authenticated user attempting to access public path',
       );
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    // If user is not logged in and tries to access protected route
+    // If not authenticated and trying to access protected route
     if (!user && isProtectedPath) {
-      console.log(
-        '[Middleware Debug] Unauthorized access attempt - redirecting to login',
-      );
+      console.log('[Middleware Debug] Unauthenticated access attempt');
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
     // Role-based access control
     if (user && userRole) {
-      const currentPath = request.nextUrl.pathname;
+      const isAdminPath = adminPaths.some(
+        (path) => currentPath === path || currentPath.startsWith(`${path}/`),
+      );
+      const isNasabahPath = nasabahPaths.some(
+        (path) => currentPath === path || currentPath.startsWith(`${path}/`),
+      );
+      const isPemerintahPath = pemerintahPaths.some(
+        (path) => currentPath === path || currentPath.startsWith(`${path}/`),
+      );
+      const isPerusahaanPath = perusahaanPaths.some(
+        (path) => currentPath === path || currentPath.startsWith(`${path}/`),
+      );
 
-      // Only admins can access admin paths
-      if (currentPath.startsWith('/admin') && userRole !== 'ADMIN') {
-        console.log(
-          '[Middleware Debug] Non-admin attempting to access admin path',
+      const hasAccess =
+        (userRole === Role.ADMIN && isAdminPath) ||
+        (userRole === Role.NASABAH && isNasabahPath) ||
+        (userRole === Role.PEMERINTAH && isPemerintahPath) ||
+        (userRole === Role.PERUSAHAAN && isPerusahaanPath) ||
+        commonPaths.some(
+          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
         );
-        return NextResponse.redirect(new URL('/', request.url));
-      }
 
-      // Only nasabah can access nasabah paths
-      const isNasabahPath = nasabahPaths.some((path) =>
-        currentPath.startsWith(path),
-      );
-      if (isNasabahPath && userRole !== 'NASABAH') {
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-
-      // Only pemerintah can access pemerintah paths
-      const isPemerintahPath = pemerintahPaths.some((path) =>
-        currentPath.startsWith(path),
-      );
-      if (isPemerintahPath && userRole !== 'PEMERINTAH') {
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-
-      // Only perusahaan can access perusahaan paths
-      const isPerusahaanPath = perusahaanPaths.some((path) =>
-        currentPath.startsWith(path),
-      );
-      if (isPerusahaanPath && userRole !== 'PERUSAHAAN') {
+      if (isProtectedPath && !hasAccess) {
+        console.log('[Middleware Debug] Unauthorized role access attempt');
         return NextResponse.redirect(new URL('/', request.url));
       }
     }

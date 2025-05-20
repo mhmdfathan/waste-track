@@ -4,6 +4,7 @@ import './globals.css';
 import { MainNav } from '@/components/general/MainNav';
 import { Footer } from '@/components/general/Footer';
 import { ThemeProvider } from '@/components/theme-provider';
+import { SessionProvider } from '@/components/session-provider';
 import { Suspense } from 'react';
 
 const geistSans = Geist({
@@ -37,11 +38,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <MainNav />
-          <main className="flex-1">
-            <Suspense>{children}</Suspense>
-          </main>
-          <Footer />
+          <SessionProvider>
+            <MainNav />
+            <main className="flex-1">
+              <Suspense>{children}</Suspense>
+            </main>
+            <Footer />
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>
