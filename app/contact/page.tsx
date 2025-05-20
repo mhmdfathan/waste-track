@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { Input } from '@/components/ui/input';
@@ -35,11 +36,11 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg p-12 mb-12 text-white">
+    <div className="container max-w-7xl mx-auto p-6 space-y-8">
+      {/* Hero */}
+      <div className="relative h-[200px] bg-gradient-to-r from-primary to-primary/80 -mx-6 px-6 flex items-center">
+        <div className="absolute inset-0 bg-black/50" />
         <div className="relative z-10">
-          <h1 className="text-4xl font-bold mb-4">Kontak Kami</h1>
           <nav className="flex" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-2">
               <li className="inline-flex items-center">
@@ -103,63 +104,57 @@ export default function ContactPage() {
         </div>
 
         {/* Contact Info */}
-        <div>
-          <div className="space-y-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-4">
-                  <MapPin className="h-6 w-6 text-emerald-500" />
-                  <div>
-                    <h3 className="font-semibold">
-                      Tempat Pengelolaan Sampah Terpadu (TPST) UNDIP
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Universitas Diponegoro, Tembalang, Semarang
-                    </p>
-                  </div>
+        <div className="space-y-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-start space-x-4">
+                <MapPin className="h-6 w-6 text-emerald-500" />
+                <div>
+                  <h3 className="font-semibold">TrashIt Processing Center</h3>
+                  <p className="text-muted-foreground">Tembalang, Semarang</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-4">
-                  <Phone className="h-6 w-6 text-emerald-500" />
-                  <div>
-                    <h3 className="font-semibold">081382443800</h3>
-                    <p className="text-muted-foreground">(Dipo Waste Bank)</p>
-                  </div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-start space-x-4">
+                <Phone className="h-6 w-6 text-emerald-500" />
+                <div>
+                  <h3 className="font-semibold">081234567890</h3>
+                  <p className="text-muted-foreground">(TrashIt)</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-4">
-                  <Mail className="h-6 w-6 text-emerald-500" />
-                  <div>
-                    <h3 className="font-semibold">dipowastebank@gmail.com</h3>
-                    <p className="text-muted-foreground">
-                      Hubungi kami melalui email
-                    </p>
-                  </div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-start space-x-4">
+                <Mail className="h-6 w-6 text-emerald-500" />
+                <div>
+                  <h3 className="font-semibold">contact@trashit.id</h3>
+                  <p className="text-muted-foreground">
+                    Hubungi kami melalui email
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       {/* Map */}
       <div className="mt-8 rounded-lg overflow-hidden">
         <iframe
-          src={MAP_CONFIG.embed_url}
+          src="https://www.google.com/maps/embed?pb=YOUR-EMBED-URL"
           width="100%"
           height="450"
           style={{ border: 0 }}
           allowFullScreen
           loading="lazy"
-          title={MAP_CONFIG.title}
+          title="TrashIt Location"
           className="rounded-lg"
           referrerPolicy="no-referrer-when-downgrade"
         />

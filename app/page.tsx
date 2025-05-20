@@ -95,7 +95,7 @@ export default function Home() {
                 <CardHeader className="flex flex-row items-center gap-4">
                   <div className="w-16 h-16 relative">
                     <Image
-                      src="https://dipowastebank.com/img/icon/kardus.png"
+                      src="/waste-types/kardus.png"
                       alt="Kardus"
                       fill
                       className="object-contain"
@@ -115,7 +115,7 @@ export default function Home() {
                 <CardHeader className="flex flex-row items-center gap-4">
                   <div className="w-16 h-16 relative">
                     <Image
-                      src="https://dipowastebank.com/img/icon/duplex.png"
+                      src="/waste-types/marga.png"
                       alt="Marga/Duplex"
                       fill
                       className="object-contain"
@@ -168,7 +168,7 @@ export default function Home() {
                 <CardHeader className="flex flex-row items-center gap-4">
                   <div className="w-16 h-16 relative">
                     <Image
-                      src="https://dipowastebank.com/img/icon/botol.png"
+                      src="/waste-types/botol.png"
                       alt="Botol Plastik"
                       fill
                       className="object-contain"
@@ -232,8 +232,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Enroll Section */}
-      <section className="py-24 bg-[url('https://dipowastebank.com/img/other/polygon-bg-blue-normal.jpg')] bg-cover">
+      {/* Registration Flow Section */}
+      <section className="py-24 bg-[url('/images/polygon-bg.jpg')] bg-cover">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8">
@@ -250,8 +250,7 @@ export default function Home() {
                   {
                     number: '1',
                     title: 'DAFTAR',
-                    description:
-                      'Scan QRcode atau menuju dipowastebank.com/register',
+                    description: 'Scan QRcode atau menuju trashit.id/register',
                   },
                   {
                     number: '2',
@@ -382,9 +381,7 @@ export default function Home() {
                     </svg>
                     Telepon
                   </CardTitle>
-                  <CardDescription>
-                    081382443800 (​Dipo Waste Bank)
-                  </CardDescription>
+                  <CardDescription>081382443800 (TrashIt)</CardDescription>
                 </CardHeader>
               </Card>
 
@@ -408,7 +405,7 @@ export default function Home() {
                     Email
                   </CardTitle>
                   <CardDescription>
-                    ​dipowastebank@gmail.com Hubungi kami melalui email
+                    contact@trashit.id Hubungi kami melalui email
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -424,24 +421,24 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-items-center">
             {[
               {
-                src: 'https://dipowastebank.com/img/logo/undip.png',
-                alt: 'Undip',
+                src: '/partners/university.png',
+                alt: 'University',
               },
               {
-                src: 'https://dipowastebank.com/img/logo/sdgs.png',
-                alt: 'SDGs Center Undip',
+                src: '/partners/sdgs.png',
+                alt: 'SDGs Center',
               },
               {
-                src: 'https://dipowastebank.com/img/logo/oxygen.png',
-                alt: 'Oxygen Undip',
+                src: '/partners/org1.png',
+                alt: 'Organization 1',
               },
               {
-                src: 'https://dipowastebank.com/img/logo/hmtl.png',
-                alt: 'HMTL Undip',
+                src: '/partners/org2.png',
+                alt: 'Organization 2',
               },
               {
-                src: 'https://dipowastebank.com/img/logo/ksl.png',
-                alt: 'KSL Undip',
+                src: '/partners/org3.png',
+                alt: 'Organization 3',
               },
             ].map((partner, index) => (
               <div key={index} className="relative w-32 h-20">
@@ -464,7 +461,7 @@ export default function Home() {
           className="w-full h-full border-0"
           allowFullScreen
           loading="lazy"
-          title="Lokasi Dipo Waste Bank"
+          title="Lokasi TrashIt"
         />
       </div>
     </main>

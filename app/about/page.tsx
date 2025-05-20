@@ -42,7 +42,7 @@ export default function AboutPage() {
               </TabsTrigger>
               <TabsTrigger value="team" className="text-base py-3">
                 <Users className="mr-2 h-4 w-4" />
-                Tim Dipo Waste Bank
+                Tim TrashIt
               </TabsTrigger>
             </TabsList>
 
@@ -50,42 +50,34 @@ export default function AboutPage() {
               <CardContent className="p-6">
                 <TabsContent value="about">
                   <div className="space-y-6">
-                    {' '}
                     <h3 className="text-2xl font-bold">Apa itu TrashIt?</h3>
                     <div className="space-y-4 text-muted-foreground">
                       <p>
-                        {' '}
-                        TrashIt adalah bank sampah kampus yang didirikan untuk
-                        melayani kontribusi aktif semua pihak dalam pengelolaan
-                        sampah di dalam kampus. TrashIt diharapkan dapat
-                        mewujudkan pengelolaan sampah secara mandiri dan
-                        berkelanjutan di lingkungan kampus.Dengan mengusung
-                        semangat sampahku tanggung jawabku, DWB ini hadir
-                        sebagai bentuk nyata tanggung jawab CAK UDI kepada
+                        TrashIt adalah bank sampah yang didirikan untuk melayani
+                        kontribusi aktif semua pihak dalam pengelolaan sampah.
+                        TrashIt diharapkan dapat mewujudkan pengelolaan sampah
+                        secara mandiri dan berkelanjutan. Dengan mengusung
+                        semangat sampahku tanggung jawabku, TrashIt hadir
+                        sebagai bentuk nyata tanggung jawab kita terhadap
                         lingkungan melalui kegiatan 3R (reduce, reuse, recycle).
                       </p>
                       <p>
-                        {' '}
                         Dalam kegiatannya TrashIt akan menampung sampah
                         an-organik yang disetorkan oleh nasabah. Sampah yang
                         terkumpul akan dipilah dan dijual ke pengepul sesuai
                         jenisnya. Hasil penjualan sampah ini akan menjadi
-                        tabungan bagi para nasabah bank sampah TrashIt.Tabungan
+                        tabungan bagi para nasabah bank sampah TrashIt. Tabungan
                         sampah yang telah dikonversi menjadi rupiah akan dapat
                         diambil atau didonasikan oleh nasabah secara tunai
                         maupun pemindah bukuan.
                       </p>
                       <p>
-                        {' '}
                         Salah satu yang membedakan TrashIt dengan bank sampah
                         lainnya adalah pemanfaatan aplikasi berbasis web untuk
                         pengelolaan nasabah dan jumlah sampah yang disetorkan.
                         Penggunaan aplikasi ini dimaksudkan untuk menciptakan
                         layanan yang informatif dan juga untuk meminimalkan
-                        penggunaan kertas dalam kegiatan TrashIt.Aplikasi DWB
-                        ini dikembangkan oleh Husni Fadhilah Dhiya Ul Haq (NIM.
-                        24060118120034), mahasiswa Informatika Fakultas Sains
-                        dan Matematika.
+                        penggunaan kertas dalam kegiatan TrashIt.
                       </p>
                     </div>
                   </div>
@@ -96,7 +88,7 @@ export default function AboutPage() {
                     <div>
                       <h3 className="text-2xl font-bold mb-4">Visi</h3>
                       <p className="text-muted-foreground">
-                        Undip Peduli Dan Mandiri Dalam Pengelolaan Sampah Yang
+                        TrashIt Peduli Dan Mandiri Dalam Pengelolaan Sampah Yang
                         Berkelanjutan
                       </p>
                     </div>
@@ -105,11 +97,11 @@ export default function AboutPage() {
                       <ol className="list-decimal list-inside space-y-2 text-muted-foreground pl-4">
                         <li>Memberdayakan Pemilahan Sampah</li>
                         <li>
-                          Meningkatkan Partisipasi Warga Kampus Dalam
-                          Pengelolaan Lingkungan
+                          Meningkatkan Partisipasi Masyarakat Dalam Pengelolaan
+                          Lingkungan
                         </li>
                         <li>
-                          Mewujudkan Warga Kampus Yang Lebih Kreatif, Inovatif,
+                          Mewujudkan Masyarakat Yang Lebih Kreatif, Inovatif,
                           Inspiratif Dan Mandiri Di Bidang Pengelolaan
                           Lingkungan
                         </li>
@@ -121,79 +113,35 @@ export default function AboutPage() {
                 <TabsContent value="team">
                   <div className="space-y-12">
                     <div>
-                      <h3 className="text-2xl font-bold mb-6">
-                        Tim Dipo Waste Bank
-                      </h3>
+                      <h3 className="text-2xl font-bold mb-6">Tim TrashIt</h3>
 
                       <div className="space-y-8">
                         <div>
                           <h4 className="text-lg font-semibold mb-4">
-                            1. Powered By
-                          </h4>
-                          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-items-center">
-                            {[
-                              {
-                                src: 'https://dipowastebank.com/img/logo/undip.png',
-                                alt: 'Undip',
-                              },
-                              {
-                                src: 'https://dipowastebank.com/img/logo/sdgs.png',
-                                alt: 'SDGs Center Undip',
-                              },
-                              {
-                                src: 'https://dipowastebank.com/img/logo/oxygen.png',
-                                alt: 'Oxygen Undip',
-                              },
-                              {
-                                src: 'https://dipowastebank.com/img/logo/hmtl.png',
-                                alt: 'HMTL Undip',
-                              },
-                              {
-                                src: 'https://dipowastebank.com/img/logo/ksl.png',
-                                alt: 'KSL Undip',
-                              },
-                            ].map((partner, index) => (
-                              <div key={index} className="relative w-32 h-20">
-                                <Image
-                                  src={partner.src}
-                                  alt={partner.alt}
-                                  fill
-                                  className="object-contain"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="text-lg font-semibold mb-4">
-                            2. Tim Dosen
+                            1. Tim Manajemen
                           </h4>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                             {[
                               {
-                                src: 'https://dipowastebank.com/img/team/bu_sri.jpg',
-                                name: 'Dr. Sri Sumiyati, S.T., M.Si.',
+                                src: '/placeholder-profile.jpg',
+                                title: 'CEO',
                               },
                               {
-                                src: 'https://dipowastebank.com/img/team/pak_bima.jpg',
-                                name: 'Bimastyaji Surya Ramadan, S.T., M.T.',
+                                src: '/placeholder-profile.jpg',
+                                title: 'CTO',
                               },
                               {
-                                src: 'https://dipowastebank.com/img/team/pak_arief.jpg',
-                                name: 'M.Arief Budihardjo, S.T., M.Eng.Sc., Ph.d.',
+                                src: '/placeholder-profile.jpg',
+                                title: 'COO',
                               },
                             ].map((member, index) => (
                               <div key={index} className="space-y-4">
                                 <div className="aspect-[3/4] relative">
-                                  <Image
-                                    src={member.src}
-                                    alt={member.name}
-                                    fill
-                                    className="object-cover rounded-lg"
-                                  />
+                                  <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center">
+                                    <Users className="w-12 h-12 text-muted-foreground" />
+                                  </div>
                                 </div>
-                                <p className="font-medium">{member.name}</p>
+                                <p className="font-medium">{member.title}</p>
                               </div>
                             ))}
                           </div>
@@ -201,37 +149,30 @@ export default function AboutPage() {
 
                         <div>
                           <h4 className="text-lg font-semibold mb-4">
-                            3. Tim Mahasiswa
+                            2. Tim Operasional
                           </h4>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
                             {[
                               {
-                                src: 'https://dipowastebank.com/img/team/aufa.jpg',
-                                name: 'Aufa Rahma Al-Hafidz',
+                                title: 'Operations Lead',
                               },
                               {
-                                src: 'https://dipowastebank.com/img/team/haekal.jpg',
-                                name: 'Haekal Awliya Muhammad Salman',
+                                title: 'Technical Lead',
                               },
                               {
-                                src: 'https://dipowastebank.com/img/team/rizal.jpg',
-                                name: 'Rizal Adi Wirawan',
+                                title: 'Community Manager',
                               },
                               {
-                                src: 'https://dipowastebank.com/img/team/husni.jpg',
-                                name: 'Husni Fadhilah Dhiya Ul Haq',
+                                title: 'Environmental Specialist',
                               },
                             ].map((member, index) => (
                               <div key={index} className="space-y-4">
                                 <div className="aspect-square relative">
-                                  <Image
-                                    src={member.src}
-                                    alt={member.name}
-                                    fill
-                                    className="object-cover rounded-lg"
-                                  />
+                                  <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center">
+                                    <Users className="w-12 h-12 text-muted-foreground" />
+                                  </div>
                                 </div>
-                                <p className="font-medium">{member.name}</p>
+                                <p className="font-medium">{member.title}</p>
                               </div>
                             ))}
                           </div>
