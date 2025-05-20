@@ -71,12 +71,14 @@ export async function updateSession(request: NextRequest) {
           },
         });
         userRole = profile?.role;
+        console.log('[Middleware Debug] User role:', userRole);
       } catch (error) {
         console.error('[Middleware Debug] Error fetching user role:', error);
       }
     }
 
     // Role-based route protection
+    const adminPaths = ['/admin'];
     const nasabahPaths = ['/dashboard', '/timbang', '/transactions'];
     const pemerintahPaths = ['/statistics', '/users'];
     const perusahaanPaths = ['/transactions'];
@@ -85,6 +87,7 @@ export async function updateSession(request: NextRequest) {
     // All protected paths combined
     const protectedPaths = [
       ...new Set([
+        ...adminPaths,
         ...nasabahPaths,
         ...pemerintahPaths,
         ...perusahaanPaths,
@@ -122,29 +125,35 @@ export async function updateSession(request: NextRequest) {
     if (user && userRole) {
       const currentPath = request.nextUrl.pathname;
 
+      // Only admins can access admin paths
+      if (currentPath.startsWith('/admin') && userRole !== 'ADMIN') {
+        console.log(
+          '[Middleware Debug] Non-admin attempting to access admin path',
+        );
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      // Only nasabah can access nasabah paths
       const isNasabahPath = nasabahPaths.some((path) =>
         currentPath.startsWith(path),
       );
+      if (isNasabahPath && userRole !== 'NASABAH') {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      // Only pemerintah can access pemerintah paths
       const isPemerintahPath = pemerintahPaths.some((path) =>
         currentPath.startsWith(path),
       );
+      if (isPemerintahPath && userRole !== 'PEMERINTAH') {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      // Only perusahaan can access perusahaan paths
       const isPerusahaanPath = perusahaanPaths.some((path) =>
         currentPath.startsWith(path),
       );
-      const isCommonPath = commonPaths.some((path) =>
-        currentPath.startsWith(path),
-      );
-
-      const hasAccess =
-        (userRole === 'NASABAH' && isNasabahPath) ||
-        (userRole === 'PEMERINTAH' && isPemerintahPath) ||
-        (userRole === 'PERUSAHAAN' && isPerusahaanPath) ||
-        isCommonPath;
-
-      if (!hasAccess && isProtectedPath) {
-        console.log(
-          `[Middleware Debug] Access denied for ${userRole} attempting to access ${currentPath}`,
-        );
+      if (isPerusahaanPath && userRole !== 'PERUSAHAAN') {
         return NextResponse.redirect(new URL('/', request.url));
       }
     }
