@@ -1,37 +1,40 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { LoginForm } from '@/components/login-form';
 import { createClient } from '@/lib/supabase/client';
-import { login } from '@/app/login/actions';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useAuthStore } from '@/lib/store/auth-store';
 
 export default function LoginPage() {
   const router = useRouter();
-  const supabase = createClient();
+  const { user, error, isLoading, login, checkSession, clearError, profile } =
+    useAuthStore();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        router.replace('/');
-      }
-    };
-    checkAuth();
-  }, [supabase.auth, router]);
-  const [error, setError] = useState<string | null>(null);
+    // Check session on mount
+    checkSession();
 
-  async function handleLogin(formData: FormData) {
-    const result = await login(formData);
-
-    if (result?.error) {
-      setError(result.error);
-      return;
+    // If user and profile exist, redirect to appropriate route
+    if (user && profile) {
+      router.replace('/');
     }
 
-    // The server action handles redirect on success
+    return () => {
+      clearError(); // Clear any errors when unmounting
+    };
+  }, [user, profile, router, checkSession, clearError]);
+
+  async function handleLogin(formData: FormData) {
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    clearError(); // Clear any previous errors
+    await login(email, password);
+  }
+
+  if (isLoading) {
+    return <div className="container max-w-lg mx-auto p-6">Loading...</div>;
   }
 
   return (

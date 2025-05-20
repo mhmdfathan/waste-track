@@ -30,21 +30,24 @@ export async function login(formData: FormData) {
         where: {
           userId: signInData.user.id,
         },
-        select: {
-          role: true,
-        },
       });
+
+      if (!userRole) {
+        return {
+          error: 'User profile not found',
+        };
+      }
 
       revalidatePath('/', 'layout');
 
       // Redirect based on role
-      if (userRole?.role === Role.ADMIN) {
+      if (userRole.role === Role.ADMIN) {
         redirect('/admin');
-      } else if (userRole?.role === Role.NASABAH) {
+      } else if (userRole.role === Role.NASABAH) {
         redirect('/dashboard');
-      } else if (userRole?.role === Role.PEMERINTAH) {
+      } else if (userRole.role === Role.PEMERINTAH) {
         redirect('/statistics');
-      } else if (userRole?.role === Role.PERUSAHAAN) {
+      } else if (userRole.role === Role.PERUSAHAAN) {
         redirect('/transactions');
       } else {
         redirect('/');

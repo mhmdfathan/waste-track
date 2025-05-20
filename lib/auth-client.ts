@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createClient } from '@/lib/supabase/client';
+import { useAuthStore } from './store/auth-store';
 
 import prisma from '@/app/utils/db';
 
@@ -12,33 +13,20 @@ export async function getUserProfileClient() {
       },
     });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        // Handle unauthorized - might need to refresh session
-        const supabase = createClient();
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-        if (session) {
-          // Retry the request if we have a session
-          const retryResponse = await fetch('/api/profile', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-          if (retryResponse.ok) {
-            return retryResponse.json();
-          }
-        }
-      }
-      return null;
+    if (response.ok) {
+      const profile = await response.json();
+      // Update the auth store with the profile
+      const { setProfile } = useAuthStore.getState();
+      setProfile(profile);
+      return profile;
     }
 
-    return response.json();
+    throw new Error('Failed to fetch user profile');
   } catch (error) {
     console.error('Error fetching user profile:', error);
-    return null;
+    // Clear profile in store if there's an error
+    const { setProfile } = useAuthStore.getState();
+    setProfile(null);
+    throw error; // Re-throw the error to be handled by the caller
   }
 }

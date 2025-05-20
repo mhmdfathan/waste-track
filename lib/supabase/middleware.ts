@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import prisma from '@/app/utils/db';
-import { CookieOptions } from '@supabase/ssr';
+import type { CookieOptions } from '@supabase/ssr';
 import { Role } from '@prisma/client';
 
 export async function updateSession(request: NextRequest) {
@@ -21,6 +21,7 @@ export async function updateSession(request: NextRequest) {
       },
     });
 
+    // Set up supabase client with cookie handling
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -57,36 +58,12 @@ export async function updateSession(request: NextRequest) {
       },
     );
 
+    // Get authenticated user
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    console.log('[Middleware Debug] Request path:', request.nextUrl.pathname);
-    console.log('[Middleware Debug] Auth state:', {
-      isAuthenticated: !!user,
-      userId: user?.id,
-      userEmail: user?.email,
-    });
-
-    // Get user role if authenticated
-    let userRole: Role | null = null;
-    if (user) {
-      try {
-        const profile = await prisma.userRole.findUnique({
-          where: {
-            userId: user.id,
-          },
-          select: {
-            role: true,
-          },
-        });
-        userRole = profile?.role ?? null;
-      } catch (error) {
-        console.error('[Middleware Debug] Error fetching user role:', error);
-      }
-    }
-
-    // Define protected paths by role
+    // Define protected and public paths
     const adminPaths = [
       '/admin',
       '/admin/posts',
@@ -97,8 +74,6 @@ export async function updateSession(request: NextRequest) {
     const pemerintahPaths = ['/statistics', '/users'];
     const perusahaanPaths = ['/transactions'];
     const commonPaths = ['/profile'];
-
-    // All protected paths combined
     const protectedPaths = [
       ...adminPaths,
       ...nasabahPaths,
@@ -106,64 +81,73 @@ export async function updateSession(request: NextRequest) {
       ...perusahaanPaths,
       ...commonPaths,
     ];
+    const publicPaths = ['/login', '/register', '/auth', '/verify-email'];
 
     const currentPath = request.nextUrl.pathname;
     const isProtectedPath = protectedPaths.some(
       (path) => currentPath === path || currentPath.startsWith(`${path}/`),
     );
-
-    const publicPaths = ['/login', '/register', '/auth', '/verify-email'];
     const isPublicPath = publicPaths.some(
       (path) => currentPath === path || currentPath.startsWith(`${path}/`),
     );
 
-    // If user is logged in and tries to access public paths, redirect to home
+    // If user is authenticated and tries to access public paths (like login), redirect to home
     if (user && isPublicPath) {
-      console.log(
-        '[Middleware Debug] Authenticated user attempting to access public path',
-      );
       return NextResponse.redirect(new URL('/', request.url));
     }
 
     // If not authenticated and trying to access protected route
     if (!user && isProtectedPath) {
-      console.log('[Middleware Debug] Unauthenticated access attempt');
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // Role-based access control
-    if (user && userRole) {
-      const isAdminPath = adminPaths.some(
-        (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-      );
-      const isNasabahPath = nasabahPaths.some(
-        (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-      );
-      const isPemerintahPath = pemerintahPaths.some(
-        (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-      );
-      const isPerusahaanPath = perusahaanPaths.some(
-        (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-      );
+    // Role-based access control for authenticated users
+    if (user && isProtectedPath) {
+      try {
+        const profile = await prisma.userRole.findUnique({
+          where: { userId: user.id },
+          select: { role: true },
+        });
 
-      const hasAccess =
-        (userRole === Role.ADMIN && isAdminPath) ||
-        (userRole === Role.NASABAH && isNasabahPath) ||
-        (userRole === Role.PEMERINTAH && isPemerintahPath) ||
-        (userRole === Role.PERUSAHAAN && isPerusahaanPath) ||
-        commonPaths.some(
+        if (!profile) {
+          return NextResponse.redirect(new URL('/', request.url));
+        }
+
+        const isAdminPath = adminPaths.some(
+          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
+        );
+        const isNasabahPath = nasabahPaths.some(
+          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
+        );
+        const isPemerintahPath = pemerintahPaths.some(
+          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
+        );
+        const isPerusahaanPath = perusahaanPaths.some(
+          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
+        );
+        const isCommonPath = commonPaths.some(
           (path) => currentPath === path || currentPath.startsWith(`${path}/`),
         );
 
-      if (isProtectedPath && !hasAccess) {
-        console.log('[Middleware Debug] Unauthorized role access attempt');
-        return NextResponse.redirect(new URL('/', request.url));
+        const hasAccess =
+          (profile.role === Role.ADMIN && isAdminPath) ||
+          (profile.role === Role.NASABAH && isNasabahPath) ||
+          (profile.role === Role.PEMERINTAH && isPemerintahPath) ||
+          (profile.role === Role.PERUSAHAAN && isPerusahaanPath) ||
+          isCommonPath;
+
+        if (!hasAccess) {
+          return NextResponse.redirect(new URL('/', request.url));
+        }
+      } catch (error) {
+        console.error('Error checking user role:', error);
+        return NextResponse.redirect(new URL('/error', request.url));
       }
     }
 
     return response;
   } catch (error) {
-    console.error('[Middleware Debug] Unexpected error:', error);
+    console.error('Unexpected error:', error);
     return NextResponse.redirect(new URL('/error', request.url));
   }
 }

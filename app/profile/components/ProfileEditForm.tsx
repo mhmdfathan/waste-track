@@ -25,9 +25,10 @@ import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { QrCode } from 'lucide-react';
+import type { UserRoleWithRelations } from '@/types/auth';
 
 interface ProfileEditFormProps {
-  profile: any; // Replace with proper type
+  profile: UserRoleWithRelations;
   onUpdate: () => void;
 }
 
