@@ -1,9 +1,10 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import prisma from '@/app/utils/db';
-import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
+import { createWasteListingSchema } from './schemas/waste-listing';
 
 export async function handleSubmission(formData: FormData) {
   const supabase = await createClient();
@@ -12,44 +13,47 @@ export async function handleSubmission(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return redirect('/login');
+    throw new Error('Not authenticated');
   }
 
   try {
-    const title = formData.get('title') as string;
-    const content = formData.get('content') as string;
-    const url = formData.get('url') as string;
-    const price = parseInt(formData.get('price') as string) || 0;
-    const weight = parseFloat(formData.get('weight') as string) || 0;
-    const wasteType = formData.get('wasteType') as
-      | 'RECYCLABLE'
-      | 'NON_RECYCLABLE';
+    const validatedFields = createWasteListingSchema.safeParse({
+      title: formData.get('title'),
+      content: formData.get('content'),
+      url: formData.get('url'),
+      price: parseInt(formData.get('price') as string) || 0,
+      weight: parseFloat(formData.get('weight') as string) || 0,
+      wasteType: formData.get('wasteType'),
+    });
 
-    if (!title || !content || !url || !price || !weight || !wasteType) {
-      throw new Error('All fields are required');
+    if (!validatedFields.success) {
+      throw new Error(
+        validatedFields.error.errors[0]?.message || 'Invalid input',
+      );
     }
 
     const listing = await prisma.wasteListing.create({
       data: {
-        title,
-        description: content,
-        imageUrl: url,
+        title: validatedFields.data.title,
+        description: validatedFields.data.content,
+        imageUrl: validatedFields.data.url,
         authorId: user.id,
         authorImage: user.user_metadata?.picture ?? '',
         authorName: user.user_metadata?.full_name ?? user.email ?? 'Anonymous',
-        price,
-        wasteType,
-        weight,
+        price: validatedFields.data.price,
+        wasteType: validatedFields.data.wasteType,
+        weight: validatedFields.data.weight,
         status: 'AVAILABLE',
       },
     });
 
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     revalidatePath(`/listing/${listing.id}`);
-    return redirect('/dashboard');
+    redirect('/dashboard');
   } catch (error) {
-    console.error('Error creating listing:', error);
-    throw error;
+    throw new Error(
+      error instanceof Error ? error.message : 'Failed to create listing',
+    );
   }
 }
 
@@ -60,54 +64,59 @@ export async function editPost(formData: FormData, id: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return redirect('/login');
+    return { error: 'Not authenticated' };
   }
 
   try {
-    const title = formData.get('title') as string;
-    const content = formData.get('content') as string;
-    const url = formData.get('url') as string;
-    const price = parseInt(formData.get('price') as string) || 0;
-    const weight = parseFloat(formData.get('weight') as string) || 0;
-    const wasteType = formData.get('wasteType') as
-      | 'RECYCLABLE'
-      | 'NON_RECYCLABLE';
+    const validatedFields = createWasteListingSchema.safeParse({
+      title: formData.get('title'),
+      content: formData.get('content'),
+      url: formData.get('url'),
+      price: parseInt(formData.get('price') as string) || 0,
+      weight: parseFloat(formData.get('weight') as string) || 0,
+      wasteType: formData.get('wasteType'),
+    });
 
-    if (!title || !content || !url || !price || !weight || !wasteType) {
-      throw new Error('All fields are required');
+    if (!validatedFields.success) {
+      return {
+        error: validatedFields.error.errors[0]?.message || 'Invalid input',
+      };
     }
 
     const listing = await prisma.wasteListing.update({
-      where: {
-        id: id,
-        authorId: user.id,
-      },
+      where: { id },
       data: {
-        title,
-        description: content,
-        imageUrl: url,
-        price,
-        weight,
-        wasteType,
+        title: validatedFields.data.title,
+        description: validatedFields.data.content,
+        imageUrl: validatedFields.data.url,
+        price: validatedFields.data.price,
+        wasteType: validatedFields.data.wasteType,
+        weight: validatedFields.data.weight,
       },
     });
 
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     revalidatePath(`/listing/${listing.id}`);
-    return redirect('/dashboard');
+    return { success: true };
   } catch (error) {
     console.error('Error updating listing:', error);
-    throw error;
+    return { error: 'Failed to update listing' };
   }
 }
 
 export async function getProfile(userId: string) {
-  return await prisma.userRole.findUnique({
-    where: {
-      userId: userId,
-    },
-    include: {
-      companyProfile: true,
-    },
-  });
+  try {
+    const profile = await prisma.userRole.findUnique({
+      where: {
+        userId: userId,
+      },
+      include: {
+        companyProfile: true,
+      },
+    });
+    return profile;
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return null;
+  }
 }

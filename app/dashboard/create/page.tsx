@@ -23,6 +23,7 @@ export default function CreateBlogRoute() {
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -73,12 +74,24 @@ export default function CreateBlogRoute() {
     }
   }
 
+  async function handleFormAction(formData: FormData) {
+    try {
+      await handleSubmission(formData);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred';
+      toast.error(errorMessage);
+      setError(errorMessage);
+    }
+  }
+
   function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (!imageUrl) {
       e.preventDefault();
       toast.error('Please upload an image first');
       return;
     }
+    setError(null);
   }
 
   return (
@@ -91,9 +104,14 @@ export default function CreateBlogRoute() {
         <CardContent>
           <form
             className="flex flex-col gap-6"
-            action={handleSubmission}
+            action={handleFormAction}
             onSubmit={handleFormSubmit}
           >
+            {error && (
+              <div className="text-sm font-medium text-destructive">
+                {error}
+              </div>
+            )}
             <div className="flex flex-col gap-2">
               <Label>Title</Label>
               <Input

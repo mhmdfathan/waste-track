@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
+import { toast } from 'sonner';
 import {
   Card,
   CardContent,
@@ -20,39 +21,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { WasteType } from '@prisma/client';
+import { timbangFormSchema } from '../schemas/timbang';
 
 interface WasteEntry {
-  type: 'recyclable' | 'non-recyclable';
+  type: WasteType;
   amount: number;
 }
 
 // Price rates per kg in Rupiah
 const PRICE_RATES = {
-  recyclable: 5000, // Rp 5,000 per kg for recyclable waste
-  'non-recyclable': 2000, // Rp 2,000 per kg for non-recyclable waste
+  RECYCLABLE: 5000, // Rp 5,000 per kg for recyclable waste
+  NON_RECYCLABLE: 2000, // Rp 2,000 per kg for non-recyclable waste
 };
 
 export default function TimbangPage() {
   const [wasteEntries, setWasteEntries] = useState<WasteEntry[]>([]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const recyclableTotal = wasteEntries.reduce(
-    (sum, entry) => (entry.type === 'recyclable' ? sum + entry.amount : sum),
+    (sum, entry) =>
+      entry.type === WasteType.RECYCLABLE ? sum + entry.amount : sum,
     0,
   );
   const nonRecyclableTotal = wasteEntries.reduce(
     (sum, entry) =>
-      entry.type === 'non-recyclable' ? sum + entry.amount : sum,
+      entry.type === WasteType.NON_RECYCLABLE ? sum + entry.amount : sum,
     0,
   );
   const totalWaste = wasteEntries.reduce((sum, entry) => sum + entry.amount, 0);
 
   // Calculate total value in Rupiah
-  const recyclableValue = recyclableTotal * PRICE_RATES.recyclable;
-  const nonRecyclableValue = nonRecyclableTotal * PRICE_RATES['non-recyclable'];
+  const recyclableValue = recyclableTotal * PRICE_RATES.RECYCLABLE;
+  const nonRecyclableValue = nonRecyclableTotal * PRICE_RATES.NON_RECYCLABLE;
   const totalValue = recyclableValue + nonRecyclableValue;
 
-  // Format number to Rupiah
   const formatToRupiah = (number: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -66,18 +70,47 @@ export default function TimbangPage() {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const type = formData.get('wasteType') as 'recyclable' | 'non-recyclable';
-    const amount = Number(formData.get('wasteAmount'));
 
-    if (editIndex !== null) {
-      const updatedEntries = [...wasteEntries];
-      updatedEntries[editIndex] = { type, amount };
-      setWasteEntries(updatedEntries);
-      setEditIndex(null);
-    } else {
-      setWasteEntries([...wasteEntries, { type, amount }]);
+    try {
+      const validatedFields = timbangFormSchema.safeParse({
+        wasteType: formData.get('wasteType'),
+        weight: parseFloat(formData.get('wasteAmount') as string),
+      });
+
+      if (!validatedFields.success) {
+        const errorMessage =
+          validatedFields.error.errors[0]?.message || 'Invalid input';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        return;
+      }
+
+      setError(null);
+
+      if (editIndex !== null) {
+        const updatedEntries = [...wasteEntries];
+        updatedEntries[editIndex] = {
+          type: validatedFields.data.wasteType,
+          amount: validatedFields.data.weight,
+        };
+        setWasteEntries(updatedEntries);
+        setEditIndex(null);
+        toast.success('Entry updated successfully');
+      } else {
+        setWasteEntries([
+          ...wasteEntries,
+          {
+            type: validatedFields.data.wasteType,
+            amount: validatedFields.data.weight,
+          },
+        ]);
+        toast.success('Entry added successfully');
+      }
+      form.reset();
+    } catch (err) {
+      console.error('Error validating form:', err);
+      toast.error('Failed to process waste entry');
     }
-    form.reset();
   };
 
   const handleEdit = (index: number) => {
@@ -90,7 +123,9 @@ export default function TimbangPage() {
 
   const handleDelete = (index: number) => {
     setWasteEntries(wasteEntries.filter((_, i) => i !== index));
+    toast.success('Entry deleted successfully');
   };
+
   return (
     <Suspense fallback={<Loading />}>
       <div className="container max-w-7xl mx-auto p-6 space-y-8">
@@ -102,6 +137,7 @@ export default function TimbangPage() {
             Pantau dan kelola catatan pembuangan sampah Anda
           </p>
         </div>
+
         {/* Statistik */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
@@ -133,13 +169,14 @@ export default function TimbangPage() {
               <CardDescription>Total Nilai</CardDescription>
               <CardTitle>{formatToRupiah(totalValue)}</CardTitle>
               <CardDescription>
-                Rp {PRICE_RATES.recyclable}/kg (daur ulang)
+                Rp {PRICE_RATES.RECYCLABLE}/kg (daur ulang)
                 <br />
-                Rp {PRICE_RATES['non-recyclable']}/kg (non-daur ulang)
+                Rp {PRICE_RATES.NON_RECYCLABLE}/kg (non-daur ulang)
               </CardDescription>
             </CardHeader>
           </Card>
         </div>
+
         {/* Formulir Pencatatan Sampah */}
         <Card>
           <CardHeader>
@@ -151,6 +188,11 @@ export default function TimbangPage() {
           <CardContent>
             <form id="wasteForm" onSubmit={handleSubmit}>
               <div className="grid w-full items-center gap-4">
+                {error && (
+                  <div className="text-sm font-medium text-destructive">
+                    {error}
+                  </div>
+                )}
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="wasteType">Jenis Sampah</Label>
                   <div className="relative w-[200px]">
@@ -158,13 +200,11 @@ export default function TimbangPage() {
                       <SelectTrigger id="wasteType" className="w-full">
                         <SelectValue placeholder="Pilih jenis sampah" />
                       </SelectTrigger>
-                      <SelectContent
-                        sideOffset={4}
-                        position="popper"
-                        className="w-[200px]"
-                      >
-                        <SelectItem value="recyclable">Daur Ulang</SelectItem>
-                        <SelectItem value="non-recyclable">
+                      <SelectContent position="popper" className="w-[200px]">
+                        <SelectItem value={WasteType.RECYCLABLE}>
+                          Daur Ulang
+                        </SelectItem>
+                        <SelectItem value={WasteType.NON_RECYCLABLE}>
                           Tidak Daur Ulang
                         </SelectItem>
                       </SelectContent>
@@ -180,6 +220,7 @@ export default function TimbangPage() {
                     placeholder="Masukkan berat dalam kg"
                     step="0.01"
                     min="0"
+                    max="1000"
                     required
                   />
                 </div>
@@ -196,6 +237,7 @@ export default function TimbangPage() {
                 ) as HTMLFormElement;
                 form.reset();
                 setEditIndex(null);
+                setError(null);
               }}
             >
               Batal
@@ -205,6 +247,7 @@ export default function TimbangPage() {
             </Button>
           </CardFooter>
         </Card>
+
         {/* Riwayat Sampah */}
         <Card>
           <CardHeader>
@@ -218,7 +261,6 @@ export default function TimbangPage() {
               <table className="w-full border-collapse border-spacing-0">
                 <thead className="bg-muted/50">
                   <tr>
-                    {' '}
                     <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
                       Jenis
                     </th>
@@ -250,16 +292,18 @@ export default function TimbangPage() {
                         className="border-b transition-colors hover:bg-muted/50"
                       >
                         <td className="p-4 align-middle capitalize">
-                          {entry.type}
-                        </td>{' '}
+                          {entry.type === WasteType.RECYCLABLE
+                            ? 'Daur Ulang'
+                            : 'Tidak Daur Ulang'}
+                        </td>
                         <td className="p-4 align-middle">
                           {entry.amount.toFixed(2)} kg
                         </td>
                         <td className="p-4 align-middle">
                           {formatToRupiah(
-                            entry.type === 'recyclable'
-                              ? entry.amount * PRICE_RATES.recyclable
-                              : entry.amount * PRICE_RATES['non-recyclable'],
+                            entry.type === WasteType.RECYCLABLE
+                              ? entry.amount * PRICE_RATES.RECYCLABLE
+                              : entry.amount * PRICE_RATES.NON_RECYCLABLE,
                           )}
                         </td>
                         <td className="p-4 align-middle">
@@ -287,7 +331,7 @@ export default function TimbangPage() {
               </table>
             </div>
           </CardContent>
-        </Card>{' '}
+        </Card>
       </div>
     </Suspense>
   );

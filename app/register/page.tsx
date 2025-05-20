@@ -9,20 +9,18 @@ export default function RegisterPage() {
 
   return (
     <div className="container max-w-lg mx-auto p-6">
-      {error && (
-        <div className="bg-destructive/15 text-destructive text-sm p-4 rounded-md mb-4">
-          {error}
-        </div>
-      )}
       <RegisterForm
+        error={error}
         onSubmit={async (e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
-          try {
-            await signup(formData);
-          } catch {
-            setError('Registration failed. Please try again.');
+          const result = await signup(formData);
+
+          if (result?.error) {
+            setError(result.error);
+            return;
           }
+          // The server action handles redirect on success
         }}
       />
     </div>

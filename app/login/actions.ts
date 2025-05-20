@@ -2,127 +2,139 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-
 import { createClient } from '@/lib/supabase/server';
-import { Role } from '@prisma/client'; // Import Role enum
-import prisma from '@/app/utils/db'; // Corrected import path
+import { Role } from '@prisma/client';
+import prisma from '@/app/utils/db';
+import { validateLogin, validateRegister } from './authValidation';
+import { ZodError } from 'zod';
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  };
+  try {
+    // Validate input
+    const validatedData = validateLogin(formData);
 
-  const { error: signInError, data: signInData } =
-    await supabase.auth.signInWithPassword(data);
+    const { error: signInError, data: signInData } =
+      await supabase.auth.signInWithPassword(validatedData);
 
-  if (signInError) {
-    redirect('/error');
+    if (signInError) {
+      return {
+        error: 'Invalid email or password',
+      };
+    }
+
+    if (signInData.user) {
+      // Check user role
+      const userRole = await prisma.userRole.findUnique({
+        where: {
+          userId: signInData.user.id,
+        },
+        select: {
+          role: true,
+        },
+      });
+
+      revalidatePath('/', 'layout');
+
+      // Redirect based on role
+      if (userRole?.role === 'ADMIN') {
+        redirect('/admin');
+      } else {
+        redirect('/');
+      }
+    }
+
+    return {
+      error: 'Something went wrong during sign in',
+    };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        error: error.errors[0]?.message || 'Invalid input',
+      };
+    }
+    return {
+      error: 'An unexpected error occurred',
+    };
   }
-  if (signInData.user) {
-    // No need to check roles here since middleware handles access control
-    revalidatePath('/', 'layout');
-    return redirect('/');
-  }
-
-  // If we get here without a user, something went wrong
-  return redirect('/error');
 }
 
 export async function signup(formData: FormData) {
   const supabase = await createClient();
 
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const roleInput = formData.get('role') as string;
+  try {
+    // Validate input using Zod schema
+    const validatedData = validateRegister(formData);
 
-  if (!email || !password || !roleInput) {
-    return redirect('/error?message=Email, password, and role are required.');
-  }
-
-  // For admin creation, verify that the request comes from an existing admin
-  if (roleInput.toUpperCase() === Role.ADMIN) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return redirect('/error?message=Unauthorized to create admin accounts');
-    }
-
-    const currentUserRole = await prisma.userRole.findUnique({
-      where: { userId: user.id },
-    });
-
-    if (!currentUserRole || currentUserRole.role !== Role.ADMIN) {
-      return redirect(
-        '/error?message=Only existing admins can create new admin accounts',
-      );
-    }
-  }
-
-  // Validate roleInput against Role enum
-  const selectedRole = roleInput.toUpperCase() as Role;
-  if (!Object.values(Role).includes(selectedRole)) {
-    return redirect(`/error?message=Invalid role selected: ${roleInput}`);
-  }
-
-  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-    email,
-    password,
-  });
-
-  if (signUpError) {
-    console.error('Signup error:', signUpError.message);
-    return redirect(
-      `/error?message=${encodeURIComponent(signUpError.message)}`,
-    );
-  }
-
-  const userId = signUpData.user?.id;
-  if (userId) {
-    try {
-      const name = formData.get('name') as string;
-
-      if (!name) {
-        return redirect('/error?message=Name is required.');
+    // For admin creation, verify that the request comes from an existing admin
+    if (validatedData.role.toUpperCase() === Role.ADMIN) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        return {
+          error: 'Unauthorized to create admin accounts',
+        };
       }
 
+      const adminUser = await prisma.userRole.findUnique({
+        where: { userId: user.id, role: Role.ADMIN },
+      });
+      if (!adminUser) {
+        return {
+          error: 'Unauthorized to create admin accounts',
+        };
+      }
+    }
+
+    // Proceed with signup
+    const { error: signUpError, data: signUpData } = await supabase.auth.signUp(
+      {
+        email: validatedData.email,
+        password: validatedData.password,
+        options: {
+          data: {
+            name: validatedData.name,
+            role: validatedData.role,
+          },
+        },
+      },
+    );
+
+    if (signUpError) {
+      return {
+        error: signUpError.message,
+      };
+    }
+
+    // Create user in database
+    if (signUpData.user) {
       await prisma.userRole.create({
         data: {
-          userId: userId,
-          role: selectedRole,
-          name: name,
-          email: email,
+          userId: signUpData.user.id,
+          email: validatedData.email,
+          name: validatedData.name,
+          role: validatedData.role as Role,
+          address: validatedData.address || '',
         },
       });
-    } catch (roleError) {
-      let errorMessage = 'An unknown error occurred while saving the role.';
-      if (roleError instanceof Error) {
-        errorMessage = roleError.message;
-      }
-      console.error('Role insert error (Prisma):', errorMessage);
-      // Attempt to clean up the created user in Supabase auth if role insertion fails
-      if (signUpData.user) {
-        const { error: deleteUserError } = await supabase.auth.admin.deleteUser(
-          signUpData.user.id,
-        );
-        if (deleteUserError) {
-          console.error(
-            'Failed to delete user after role insert error:',
-            deleteUserError.message,
-          );
-        }
-      }
-      return redirect(
-        `/error?message=Error saving role: ${encodeURIComponent(errorMessage)}`,
-      );
-    }
-  }
 
-  revalidatePath('/');
-  redirect('/verify-email');
+      revalidatePath('/', 'layout');
+      redirect('/');
+    }
+
+    return {
+      error: 'Something went wrong during sign up',
+    };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        error: error.errors[0]?.message || 'Invalid input',
+      };
+    }
+    return {
+      error: 'An unexpected error occurred',
+    };
+  }
 }

@@ -17,15 +17,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Role } from '@prisma/client'; // Import Role enum
+import { Role } from '@prisma/client';
+import { useFormStatus } from 'react-dom';
+import { Alert, AlertDescription } from './ui/alert';
 
 interface RegisterFormProps {
   className?: string;
+  error?: string | null;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? 'Creating account...' : 'Create account'}
+    </Button>
+  );
 }
 
 export function RegisterForm({
   className,
+  error,
   onSubmit,
   ...props
 }: RegisterFormProps) {
@@ -38,9 +51,14 @@ export function RegisterForm({
             <CardDescription>
               Enter your details below to create your account
             </CardDescription>
-          </CardHeader>{' '}
+          </CardHeader>
           <form onSubmit={onSubmit}>
             <div className="grid gap-6">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
               <div className="grid gap-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
@@ -49,6 +67,7 @@ export function RegisterForm({
                   type="text"
                   placeholder="John Doe"
                   required
+                  autoComplete="name"
                 />
               </div>
               <div className="grid gap-2">
@@ -59,49 +78,57 @@ export function RegisterForm({
                   type="email"
                   placeholder="m@example.com"
                   required
+                  autoComplete="email"
                 />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" name="password" type="password" required />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  autoComplete="new-password"
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="role">Role</Label>
                 <Select name="role" required defaultValue={Role.NASABAH}>
-                  <SelectTrigger id="role">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={Role.NASABAH}>{Role.NASABAH}</SelectItem>
-                    <SelectItem value={Role.PERUSAHAAN}>
-                      {Role.PERUSAHAAN}
-                    </SelectItem>
-                    <SelectItem value={Role.PEMERINTAH}>
-                      {Role.PEMERINTAH}
-                    </SelectItem>
+                    <SelectItem value={Role.NASABAH}>Nasabah</SelectItem>
+                    <SelectItem value={Role.PERUSAHAAN}>Perusahaan</SelectItem>
+                    <SelectItem value={Role.PEMERINTAH}>Pemerintah</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className="w-full">
-                Sign up
-              </Button>
-              <div className="text-center text-sm">
+              <div className="grid gap-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  name="address"
+                  type="text"
+                  placeholder="123 Main St, City"
+                  required
+                  autoComplete="street-address"
+                />
+              </div>
+              <SubmitButton />
+              <p className="text-sm text-center text-muted-foreground">
                 Already have an account?{' '}
                 <Link
                   href="/login"
                   className="underline underline-offset-4 hover:text-primary"
                 >
-                  Login
+                  Sign in
                 </Link>
-              </div>
+              </p>
             </div>
           </form>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
-        and <a href="#">Privacy Policy</a>.
-      </div>
     </div>
   );
 }

@@ -1,43 +1,37 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Phone, MapPin, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { MAP_CONFIG } from '@/lib/config';
+import { submitContactForm } from './actions';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
-    // Get form data
     const formData = new FormData(event.currentTarget);
-    const data = {
-      name: formData.get('name'),
-      email: formData.get('email'),
-      subject: formData.get('subject'),
-      message: formData.get('message'),
-    };
+    const result = await submitContactForm(formData);
 
-    try {
-      // Here you would typically send the data to your backend
-      // For now, we'll just simulate a success response
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (result?.error) {
+      setError(result.error);
+      toast.error(result.error);
+    } else {
       toast.success('Pesan berhasil terkirim!');
       (event.target as HTMLFormElement).reset();
-    } catch (error) {
-      toast.error('Gagal mengirim pesan. Silakan coba lagi.');
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   return (
@@ -69,6 +63,11 @@ export default function ContactPage() {
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
                 <Textarea
                   name="message"
                   placeholder="Masukkan pesan Anda"

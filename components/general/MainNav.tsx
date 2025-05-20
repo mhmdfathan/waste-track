@@ -45,6 +45,14 @@ const roleNavigation = {
     { name: 'Users', href: '/users' },
   ],
   PERUSAHAAN: [{ name: 'Transactions', href: '/transactions' }],
+  ADMIN: [
+    { name: 'Dashboard', href: '/admin' },
+    { name: 'Pages', href: '/admin/pages' },
+    { name: 'Posts', href: '/admin/posts' },
+    { name: 'Categories', href: '/admin/categories' },
+    { name: 'Users', href: '/admin/users' },
+    { name: 'Statistics', href: '/statistics' },
+  ],
 };
 
 export function MainNav() {

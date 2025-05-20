@@ -1,50 +1,72 @@
-import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/utils/db';
-import { type NextRequest } from 'next/server';
-import slugify from 'slugify';
+import { postSchema } from '@/app/schemas/blog';
+import { createClient } from '@/lib/supabase/server';
+import { ZodError } from 'zod';
 
-export async function POST(req: NextRequest) {
+export async function GET() {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return new Response('Unauthorized', { status: 401 });
-    }
-
-    // Only allow PEMERINTAH role to create posts
-    const userRole = await prisma.userRole.findUnique({
-      where: { userId: user.id },
+    const posts = await prisma.post.findMany({
+      where: {
+        status: 'PUBLISHED',
+      },
+      include: {
+        author: {
+          select: {
+            userId: true,
+            name: true,
+            image: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
-    if (!userRole || userRole.role !== 'PEMERINTAH') {
-      return new Response('Forbidden', { status: 403 });
-    }
+    return NextResponse.json(posts);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch posts' },
+      { status: 500 },
+    );
+  }
+}
 
-    const json = await req.json();
-    const { title, content, imageUrl, categoryId } = json;
+export async function POST(req: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    if (!title || !content || !imageUrl || !categoryId) {
-      return new Response('Missing required fields', { status: 400 });
-    }
+  if (!user) {
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+
+    // Validate request body
+    const validatedData = postSchema.parse(body);
 
     const post = await prisma.post.create({
       data: {
-        title,
-        slug: slugify(title),
-        content,
-        imageUrl,
-        authorId: userRole.id,
-        categoryId,
-        status: 'PUBLISHED',
+        ...validatedData,
+        authorId: user.id,
       },
     });
 
     // Update category post count
     await prisma.category.update({
-      where: { id: categoryId },
+      where: { id: validatedData.categoryId },
       data: {
         totalPosts: {
           increment: 1,
@@ -52,11 +74,20 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return new Response(JSON.stringify(post), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json(post);
   } catch (error) {
     console.error('Error creating post:', error);
-    return new Response('Internal Server Error', { status: 500 });
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: error.errors[0]?.message || 'Invalid input' },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to create post' },
+      { status: 500 },
+    );
   }
 }

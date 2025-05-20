@@ -10,13 +10,30 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useFormStatus } from 'react-dom';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface LoginFormProps {
   className?: string;
+  error?: string;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? 'Signing in...' : 'Sign in'}
+    </Button>
+  );
+}
+
+export function LoginForm({
+  className,
+  error,
+  onSubmit,
+  ...props
+}: LoginFormProps) {
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -27,56 +44,45 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
           </CardHeader>
           <form onSubmit={onSubmit}>
             <div className="grid gap-6">
-              <div className="flex flex-col gap-4"></div>
-              <div className="grid gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full">
-                  Login
-                </Button>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  autoComplete="email"
+                />
               </div>
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{' '}
-                <Link
-                  href="/register"
-                  className="underline underline-offset-4 hover:text-primary"
-                >
-                  Sign up
-                </Link>
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    href="/forgot-password"
+                    className="ml-auto text-sm underline-offset-4 hover:underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                />
               </div>
+              <SubmitButton />
             </div>
           </form>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
-        and <a href="#">Privacy Policy</a>.
-      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { LoginForm } from '@/components/login-form';
 import { createClient } from '@/lib/supabase/client';
+import { login } from '@/app/login/actions';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -23,26 +24,14 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   async function handleLogin(formData: FormData) {
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+    const result = await login(formData);
 
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
+    if (result?.error) {
+      setError(result.error);
       return;
     }
 
-    if (data?.user) {
-      // First refresh to update server state
-      router.refresh();
-      // Then redirect to home page
-      router.replace('/');
-    }
+    // The server action handles redirect on success
   }
 
   return (
