@@ -94,10 +94,14 @@ export async function updateSession(request: NextRequest) {
 
     const isProtectedPath = protectedPaths.some((path) =>
       request.nextUrl.pathname.startsWith(path),
-    );
-
-    // Public paths that don't require authentication
-    const publicPaths = ['/login', '/register', '/auth', '/verify-email'];
+    ); // Public paths that don't require authentication
+    const publicPaths = [
+      '/login',
+      '/register',
+      '/auth',
+      '/verify-email',
+      '/browse',
+    ];
     const isPublicPath = publicPaths.some((path) =>
       request.nextUrl.pathname.startsWith(path),
     );

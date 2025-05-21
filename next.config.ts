@@ -44,6 +44,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         port: '',
       },
+      {
+        hostname: 'dipowastebank.com',
+        protocol: 'https',
+        port: '',
+      },
     ],
   },
 };

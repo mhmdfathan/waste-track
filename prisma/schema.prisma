@@ -54,11 +54,12 @@ model WasteListing {
 }
 
 model UserRole {
-  id           String @id @default(cuid())
-  userId       String @unique @map("user_id") @db.Uuid // Supabase auth user ID (UUID)
+  id           String  @id @default(cuid())
+  userId       String  @unique @map("user_id") @db.Uuid // Supabase auth user ID (UUID)
   role         Role
-  saldo        Int    @default(0)
-  nilaiTimbang Int    @default(0)
+  saldo        Int     @default(0)
+  nilaiTimbang Int     @default(0)
+  qrisImageUrl String? // QRIS code image URL for payment
 
   name      String // Add name for display in user listing
   email     String // Add email for contact

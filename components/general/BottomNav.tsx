@@ -4,10 +4,13 @@ import Link from 'next/link';
 import {
   Home,
   LayoutDashboard,
-  Scale,
   BarChart2,
   Users,
   Receipt,
+  Search,
+  User as UserIcon,
+  LogIn,
+  UserPlus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
@@ -73,23 +76,35 @@ export function BottomNav() {
       authListener?.subscription.unsubscribe();
     };
   }, [supabase]);
-
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
       <div className="flex items-center justify-around border-t bg-background px-4 py-2">
+        <Link
+          href="/"
+          className={cn(
+            'flex flex-col items-center gap-1 p-2 text-xs transition-colors hover:text-emerald-500',
+            pathname === '/' ? 'text-emerald-500' : 'text-muted-foreground',
+          )}
+        >
+          <Home size={20} />
+          <span>Home</span>
+        </Link>
+
+        <Link
+          href="/browse"
+          className={cn(
+            'flex flex-col items-center gap-1 p-2 text-xs transition-colors hover:text-emerald-500',
+            pathname === '/browse'
+              ? 'text-emerald-500'
+              : 'text-muted-foreground',
+          )}
+        >
+          <Search size={20} />
+          <span>Browse</span>
+        </Link>
+
         {user && profile ? (
           <>
-            <Link
-              href="/"
-              className={cn(
-                'flex flex-col items-center gap-1 p-2 text-xs transition-colors hover:text-emerald-500',
-                pathname === '/' ? 'text-emerald-500' : 'text-muted-foreground',
-              )}
-            >
-              <Home size={20} />
-              <span>Home</span>
-            </Link>
-
             {profile.role === 'NASABAH' && (
               <>
                 <Link
@@ -114,19 +129,7 @@ export function BottomNav() {
                   )}
                 >
                   <Receipt size={20} />
-                  <span>Transactions</span>
-                </Link>
-                <Link
-                  href="/timbang"
-                  className={cn(
-                    'flex flex-col items-center gap-1 p-2 text-xs transition-colors hover:text-emerald-500',
-                    pathname === '/timbang'
-                      ? 'text-emerald-500'
-                      : 'text-muted-foreground',
-                  )}
-                >
-                  <Scale size={20} />
-                  <span>Timbang</span>
+                  <span>Orders</span>
                 </Link>
               </>
             )}
@@ -143,7 +146,7 @@ export function BottomNav() {
                   )}
                 >
                   <BarChart2 size={20} />
-                  <span>Statistics</span>
+                  <span>Stats</span>
                 </Link>
                 <Link
                   href="/users"
@@ -160,22 +163,47 @@ export function BottomNav() {
               </>
             )}
 
-            {profile.role === 'PERUSAHAAN' && (
-              <Link
-                href="/transactions"
-                className={cn(
-                  'flex flex-col items-center gap-1 p-2 text-xs transition-colors hover:text-emerald-500',
-                  pathname === '/transactions'
-                    ? 'text-emerald-500'
-                    : 'text-muted-foreground',
-                )}
-              >
-                <Receipt size={20} />
-                <span>Transactions</span>
-              </Link>
-            )}
+            <Link
+              href="/profile"
+              className={cn(
+                'flex flex-col items-center gap-1 p-2 text-xs transition-colors hover:text-emerald-500',
+                pathname === '/profile'
+                  ? 'text-emerald-500'
+                  : 'text-muted-foreground',
+              )}
+            >
+              <UserIcon size={20} />
+              <span>Profile</span>
+            </Link>
           </>
-        ) : null}
+        ) : (
+          <>
+            <Link
+              href="/login"
+              className={cn(
+                'flex flex-col items-center gap-1 p-2 text-xs transition-colors hover:text-emerald-500',
+                pathname === '/login'
+                  ? 'text-emerald-500'
+                  : 'text-muted-foreground',
+              )}
+            >
+              <LogIn size={20} />
+              <span>Login</span>
+            </Link>
+            <Link
+              href="/register"
+              className={cn(
+                'flex flex-col items-center gap-1 p-2 text-xs transition-colors hover:text-emerald-500',
+                pathname === '/register'
+                  ? 'text-emerald-500'
+                  : 'text-muted-foreground',
+              )}
+            >
+              <UserPlus size={20} />
+              <span>Register</span>
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );

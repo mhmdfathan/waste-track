@@ -100,6 +100,7 @@ export function Navbar() {
               </h1>
             </Link>
             <div className="hidden sm:flex items-center gap-6">
+              {' '}
               <Link
                 className={cn(
                   'text-sm font-medium transition-colors hover:text-emerald-500',
@@ -110,6 +111,17 @@ export function Navbar() {
                 href="/"
               >
                 Home
+              </Link>
+              <Link
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-emerald-500',
+                  pathname === '/browse'
+                    ? 'text-emerald-500'
+                    : 'text-muted-foreground',
+                )}
+                href="/browse"
+              >
+                Browse
               </Link>{' '}
               {user && profile && (
                 <>
