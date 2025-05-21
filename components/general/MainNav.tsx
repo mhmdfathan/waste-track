@@ -73,7 +73,6 @@ export function MainNav() {
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-6">
-            {' '}
             <Link href="/">
               <h1 className="text-3xl font-semibold">
                 Trash<span className="text-emerald-500">It</span>

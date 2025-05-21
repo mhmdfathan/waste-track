@@ -96,13 +96,13 @@ export default function Home() {
               menciptakan lingkungan yang lebih bersih
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-8 animate-fade-right">
               <Card className="group hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center gap-4">
                   <div className="w-16 h-16 relative group-hover:scale-110 transition-transform">
                     <Image
-                      src="/waste-types/kardus.png"
+                      src="https://dipowastebank.com/img/icon/kardus.png"
                       alt="Kardus"
                       fill
                       className="object-contain"
@@ -122,7 +122,7 @@ export default function Home() {
                 <CardHeader className="flex flex-row items-center gap-4">
                   <div className="w-16 h-16 relative group-hover:scale-110 transition-transform">
                     <Image
-                      src="/waste-types/marga.png"
+                      src="https://dipowastebank.com/img/icon/duplex.png"
                       alt="Marga/Duplex"
                       fill
                       className="object-contain"
@@ -138,10 +138,6 @@ export default function Home() {
                   </p>
                 </CardContent>
               </Card>
-            </div>
-
-            <div className="hidden md:flex justify-center items-center">
-              <div className="w-48 h-48 rounded-full bg-primary/10 animate-pulse"></div>
             </div>
 
             <div className="space-y-8 animate-fade-left">
@@ -168,7 +164,7 @@ export default function Home() {
                 <CardHeader className="flex flex-row items-center gap-4">
                   <div className="w-16 h-16 relative group-hover:scale-110 transition-transform">
                     <Image
-                      src="/waste-types/botol.png"
+                      src="https://dipowastebank.com/img/icon/botol.png"
                       alt="Botol Plastik"
                       fill
                       className="object-contain"
@@ -189,59 +185,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Timeline Section */}
+      {/* SOP Section */}
       <section className="py-24 bg-secondary/10">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Alur Penimbangan Sampah
-          </h2>
-          <div className="max-w-2xl mx-auto">
-            <div className="relative space-y-12 before:absolute before:inset-0 before:left-4 before:h-full before:w-0.5 before:bg-border">
-              {[
-                {
-                  number: '1',
-                  title: 'Masuk dan Parkir',
-                  description: 'Nasabah masuk dan parkir di dalam TPST UNDIP',
-                  icon: '🅿️',
-                },
-                {
-                  number: '2',
-                  title: 'Memberitahu Nama dan Memberikan Sampah',
-                  description:
-                    'Menuju meja penimbangan dengan memberitahu nama dan memberikan sampah',
-                  icon: '⚖️',
-                },
-                {
-                  number: '3',
-                  title: 'Proses Penimbangan Selesai',
-                  description:
-                    'Setelah memberikan sampah diharapkan untuk meninggalkan lokasi. Selanjutnya data sampah akan muncul di akun website',
-                  icon: '✅',
-                },
-              ].map((step, index) => (
-                <div key={index} className="relative pl-12">
-                  <span className="absolute left-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    {step.icon}
-                  </span>
-                  <h3 className="font-bold">{step.title}</h3>
-                  <p className="text-muted-foreground">{step.description}</p>
-                </div>
-              ))}
-            </div>
+          <h2 className="text-3xl font-bold text-center mb-12">TrashIt SOP</h2>
+          <div className="relative max-w-5xl mx-auto">
+            <Image
+              src="/SOP jagoan timbang.jpg"
+              alt="TrashIt Standard Operating Procedure"
+              width={1200}
+              height={800}
+              className="w-full rounded-lg shadow-lg"
+              priority
+            />
           </div>
         </div>
       </section>
 
       {/* Registration Flow Section */}
-      <section className="py-24 bg-[url('/images/polygon-bg.jpg')] bg-cover">
+      <section className="py-24">
+        {/* Removed background image classes */}
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8">
               <div className="mb-8">
-                <h3 className="text-3xl font-bold text-white">
+                <h3 className="text-3xl font-bold text-foreground">
+                  {' '}
+                  {/* Changed text color */}
                   ALUR PENDAFTARAN AKUN
                 </h3>
-                <p className="text-white mt-2">
+                <p className="text-muted-foreground mt-2">
+                  {' '}
+                  {/* Changed text color */}
                   Ikuti alur berikut untuk mendaftar akun di TrashIt
                 </p>
               </div>
@@ -250,7 +225,7 @@ export default function Home() {
                   {
                     number: '1',
                     title: 'DAFTAR',
-                    description: 'Scan QRcode atau menuju trashit.id/register',
+                    description: 'Akses halaman trashit.my.id/register',
                   },
                   {
                     number: '2',
@@ -267,14 +242,20 @@ export default function Home() {
                 ].map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-start gap-4 bg-white/10 p-6 rounded-lg"
+                    className="flex items-start gap-4 bg-card border p-6 rounded-lg" /* Changed background and added border */
                   >
                     <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
                       {item.number}
                     </span>
                     <div>
-                      <h5 className="font-bold text-white">{item.title}</h5>
-                      <p className="text-white/80">{item.description}</p>
+                      <h5 className="font-bold text-foreground">
+                        {item.title}
+                      </h5>{' '}
+                      {/* Changed text color */}
+                      <p className="text-muted-foreground">
+                        {item.description}
+                      </p>{' '}
+                      {/* Changed text color */}
                     </div>
                   </div>
                 ))}
@@ -390,11 +371,12 @@ export default function Home() {
       {/* Map Section */}
       <div className="w-full h-[450px]">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.667796865126!2d110.43295001405274!3d-7.048267371021146!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708deccb250aad%3A0xaf73d44810ba6643!2sTPST%20Universitas%20Diponegoro!5e0!3m2!1sen!2sid!4v1624434153435!5m2!1sen!2sid"
           className="w-full h-full border-0"
-          allowFullScreen
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.6497647792708!2d110.43791137483662!3d-7.050377392951865!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708d00728a162b%3A0xc6a261d1a37b6189!2sTeknik%20Lingkungan%20Universitas%20Diponegoro!5e0!3m2!1sen!2sid!4v1747833756106!5m2!1sen!2sid"
+          style={{ border: 0 }}
+          allowFullScreen={true}
           loading="lazy"
-          title="Lokasi TrashIt"
+          referrerPolicy="no-referrer-when-downgrade"
         />
       </div>
     </main>
