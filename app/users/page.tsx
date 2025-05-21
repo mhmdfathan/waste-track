@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Role } from '@prisma/client';
 
 async function getUsers() {
   const users = await prisma.userRole.findMany({
@@ -41,7 +42,7 @@ export default async function UsersPage() {
   });
 
   // Only allow PEMERINTAH role to access this page
-  if (!currentUserRole || currentUserRole.role !== 'PEMERINTAH') {
+  if (!currentUserRole || currentUserRole.role !== Role.PEMERINTAH) {
     return redirect('/');
   }
 

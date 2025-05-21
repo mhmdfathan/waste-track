@@ -1,153 +1,103 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import prisma from '@/app/utils/db';
-import type { CookieOptions } from '@supabase/ssr';
-import { Role } from '@prisma/client';
 
 export async function updateSession(request: NextRequest) {
-  // Skip session update for static assets and public routes
-  if (
-    request.nextUrl.pathname.startsWith('/_next') ||
-    request.nextUrl.pathname.startsWith('/api') ||
-    request.nextUrl.pathname === '/favicon.ico'
-  ) {
-    return NextResponse.next();
-  }
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
 
-  try {
-    const response = NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
-    });
-
-    // Set up supabase client with cookie handling
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return request.cookies.get(name)?.value;
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            request.cookies.set({
-              name,
-              value,
-              ...options,
-            });
-            response.cookies.set({
-              name,
-              value,
-              ...options,
-            });
-          },
-          remove(name: string, options: CookieOptions) {
-            request.cookies.set({
-              name,
-              value: '',
-              ...options,
-            });
-            response.cookies.set({
-              name,
-              value: '',
-              ...options,
-            });
-          },
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get: (name: string) => request.cookies.get(name)?.value,
+        set: (name: string, value: string, options: CookieOptions) => {
+          request.cookies.set({ name, value, ...options });
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          });
+          response.cookies.set({ name, value, ...options });
+        },
+        remove: (name: string, options: CookieOptions) => {
+          request.cookies.set({ name, value: '', ...options });
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          });
+          response.cookies.set({ name, value: '', ...options });
         },
       },
-    );
+    },
+  );
 
-    // Get authenticated user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { pathname } = request.nextUrl;
 
-    // Define protected and public paths
-    const adminPaths = [
-      '/admin',
-      '/admin/posts',
-      '/admin/categories',
-      '/admin/users',
-    ];
-    const nasabahPaths = ['/dashboard', '/timbang', '/transactions'];
-    const pemerintahPaths = ['/statistics', '/users'];
-    const perusahaanPaths = ['/transactions'];
-    const commonPaths = ['/profile'];
-    const protectedPaths = [
+  // Paths for authentication flow
+  const authPaths = ['/login', '/register', '/auth/confirm', '/verify-email'];
+
+  // Define protected paths that require authentication
+  const adminPaths = [
+    '/admin',
+    '/admin/posts',
+    '/admin/categories',
+    '/admin/users',
+  ];
+  const nasabahPaths = ['/dashboard', '/timbang', '/transactions'];
+  const pemerintahPaths = ['/statistics', '/users']; // Note: /users can also be admin
+  const perusahaanPaths = ['/transactions']; // Note: /transactions can also be nasabah
+  const commonProtectedPaths = ['/profile', '/browse', '/listing']; // Added /browse and /listing
+
+  const uniqueProtectedPaths = Array.from(
+    new Set([
       ...adminPaths,
       ...nasabahPaths,
       ...pemerintahPaths,
       ...perusahaanPaths,
-      ...commonPaths,
-    ];
-    const publicPaths = ['/login', '/register', '/auth', '/verify-email'];
+      ...commonProtectedPaths,
+    ]),
+  );
 
-    const currentPath = request.nextUrl.pathname;
-    const isProtectedPath = protectedPaths.some(
-      (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-    );
-    const isPublicPath = publicPaths.some(
-      (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-    );
-
-    // If user is authenticated and tries to access public paths (like login), redirect to home
-    if (user && isPublicPath) {
-      return NextResponse.redirect(new URL('/', request.url));
+  if (user) {
+    // User is logged in
+    if (pathname === '/') {
+      // Redirect from root to /browse if logged in
+      return NextResponse.redirect(new URL('/browse', request.url));
+    }
+    if (authPaths.some((p) => pathname.startsWith(p))) {
+      // Redirect from auth pages to /browse if logged in
+      return NextResponse.redirect(new URL('/browse', request.url));
+    }
+    // Allow access to other pages. Role-specific authorization (e.g., for /admin)
+    // should be handled within those pages/layouts using Prisma to check roles.
+  } else {
+    // User is not logged in
+    // Allow access to static assets and API routes without further checks here
+    if (
+      pathname.startsWith('/_next') ||
+      pathname.startsWith('/api') ||
+      pathname === '/favicon.ico' ||
+      /\.(svg|png|jpg|jpeg|gif|webp)$/.test(pathname)
+    ) {
+      return response;
     }
 
-    // If not authenticated and trying to access protected route
-    if (!user && isProtectedPath) {
-      return NextResponse.redirect(new URL('/login', request.url));
+    // Check if the path is protected
+    if (uniqueProtectedPaths.some((p) => pathname.startsWith(p))) {
+      const redirectTo = pathname + request.nextUrl.search; // Preserve query params
+      return NextResponse.redirect(
+        new URL(
+          `/login?redirect=${encodeURIComponent(redirectTo)}`,
+          request.url,
+        ),
+      );
     }
-
-    // Role-based access control for authenticated users
-    if (user && isProtectedPath) {
-      try {
-        const profile = await prisma.userRole.findUnique({
-          where: { userId: user.id },
-          select: { role: true },
-        });
-
-        if (!profile) {
-          return NextResponse.redirect(new URL('/', request.url));
-        }
-
-        const isAdminPath = adminPaths.some(
-          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-        );
-        const isNasabahPath = nasabahPaths.some(
-          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-        );
-        const isPemerintahPath = pemerintahPaths.some(
-          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-        );
-        const isPerusahaanPath = perusahaanPaths.some(
-          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-        );
-        const isCommonPath = commonPaths.some(
-          (path) => currentPath === path || currentPath.startsWith(`${path}/`),
-        );
-
-        const hasAccess =
-          (profile.role === Role.ADMIN && isAdminPath) ||
-          (profile.role === Role.NASABAH && isNasabahPath) ||
-          (profile.role === Role.PEMERINTAH && isPemerintahPath) ||
-          (profile.role === Role.PERUSAHAAN && isPerusahaanPath) ||
-          isCommonPath;
-
-        if (!hasAccess) {
-          return NextResponse.redirect(new URL('/', request.url));
-        }
-      } catch (error) {
-        console.error('Error checking user role:', error);
-        return NextResponse.redirect(new URL('/error', request.url));
-      }
-    }
-
-    return response;
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return NextResponse.redirect(new URL('/error', request.url));
+    // Allow access to non-protected public pages (e.g., /about, /contact, and authPaths themselves)
   }
+
+  return response;
 }

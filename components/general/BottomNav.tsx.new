@@ -26,10 +26,7 @@ export function BottomNav() {
 
     const fetchUserAndProfile = async () => {
       try {
-        const {
-          data: { user },
-          error,
-        } = await getCurrentUser();
+        const { data: { user }, error } = await getCurrentUser();
 
         if (!isMounted) return;
 

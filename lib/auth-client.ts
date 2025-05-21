@@ -1,8 +1,37 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from './store/auth-store';
-
 import prisma from '@/app/utils/db';
+
+// This function replaces supabase.auth.getUser() in client components
+export async function getCurrentUser() {
+  try {
+    const response = await fetch('/api/auth/session', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const { user } = await response.json();
+      return {
+        data: { user },
+        error: null,
+      };
+    }
+
+    return {
+      data: { user: null },
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    return {
+      data: { user: null },
+      error,
+    };
+  }
+}
 
 export async function getUserProfileClient() {
   try {

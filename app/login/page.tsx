@@ -2,7 +2,6 @@
 'use client';
 
 import { LoginForm } from '@/components/login-form';
-import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/store/auth-store';

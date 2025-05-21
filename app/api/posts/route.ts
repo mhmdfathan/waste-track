@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/utils/db';
 import { postSchema } from '@/app/schemas/blog';
-import { createClient } from '@/lib/supabase/server';
+import { validateSession } from '@/lib/auth-utils';
 import { ZodError } from 'zod';
 
 export async function GET() {

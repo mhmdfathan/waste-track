@@ -1,33 +1,22 @@
-import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Role } from '@prisma/client';
 import prisma from '@/app/utils/db';
-import type { User } from '@supabase/supabase-js';
+import {
+  getCurrentUser,
+  requireAuth as requireAuthUtil,
+  checkRole,
+  checkAdmin,
+} from '@/lib/auth-utils';
 
 // Get user session - returns the User object if authenticated, null otherwise
-export async function getUserSession(): Promise<User | null> {
-  const supabase = await createClient();
-  try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError) {
-      console.error('[Auth Debug] Error getting user:', userError);
-      return null;
-    }
-
-    return user;
-  } catch (error) {
-    console.error('[Auth Debug] Unexpected error:', error);
-    return null;
-  }
+export async function getUserSession() {
+  const session = await getCurrentUser();
+  return session?.user || null;
 }
 
 // Require authentication - redirects to login if not authenticated
-export async function requireAuth(): Promise<User> {
-  const user = await getUserSession();
+export async function requireAuth() {
+  const user = await requireAuthUtil();
   if (!user) {
     console.log(
       '[Auth Debug] requireAuth: No session found, redirecting to /login',
@@ -56,26 +45,22 @@ export async function getUserProfile(userId: string) {
 }
 
 // Check if user has required role - redirects to home if not
-export async function checkRole(userId: string, allowedRoles: Role[]) {
-  const profile = await getUserProfile(userId);
+export async function checkRoleWithRedirect(
+  userId: string,
+  allowedRoles: Role[],
+) {
+  const hasRole = await checkRole(userId, allowedRoles);
 
-  if (!profile || !allowedRoles.includes(profile.role)) {
-    console.log(
-      '[Auth Debug] User does not have required role',
-      profile?.role,
-      allowedRoles,
-    );
+  if (!hasRole) {
+    console.log('[Auth Debug] User does not have required role', allowedRoles);
     redirect('/');
   }
 
   return true;
 }
 
-// Check if a user is an admin
-export async function checkAdmin(userId: string) {
-  const profile = await getUserProfile(userId);
-  return profile?.role === Role.ADMIN;
-}
+// Re-export checkAdmin for consistency
+export { checkAdmin };
 
 // Check if user is authenticated - redirects to dashboard if already logged in
 export async function checkAuthenticatedRedirect() {

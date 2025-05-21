@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { createClient } from '@/lib/supabase/server';
 import prisma from '@/app/utils/db';
 import { NextResponse } from 'next/server';
+import { validateSession } from '@/lib/auth-utils';
 
 export async function GET(_request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await validateSession();
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

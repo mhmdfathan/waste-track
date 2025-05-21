@@ -21,7 +21,6 @@ import {
 import { useEffect, useState, useRef } from 'react';
 import { updateUserProfile } from '../actions';
 import { toast } from 'sonner';
-import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { QrCode } from 'lucide-react';

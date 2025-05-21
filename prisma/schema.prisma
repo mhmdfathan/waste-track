@@ -10,6 +10,34 @@ datasource db {
   schemas   = ["public"]
 }
 
+// New models for custom auth
+model User {
+  id             String    @id @default(uuid()) @db.Uuid
+  email          String    @unique
+  hashedPassword String
+  name           String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userRole       UserRole?
+  sessions       Session[]
+
+  @@map("users")
+  @@schema("public")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String   @db.Uuid
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+  @@schema("public")
+}
+
 enum Role {
   NASABAH
   PERUSAHAAN
@@ -113,6 +141,8 @@ model UserRole {
   createdAt DateTime @default(now())
   isActive  Boolean  @default(true)
 
+  // Add relation to User
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   sellerTransactions Transaction[]   @relation("SellerTransactions")
   buyerTransactions  Transaction[]   @relation("BuyerTransactions")
   timbangData        TimbangData[]

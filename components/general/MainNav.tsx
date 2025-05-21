@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from './ModeToggle';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import type { UserRole } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { useAuthStore } from '@/lib/store/auth-store';
 import {
   DropdownMenu,
@@ -31,23 +31,30 @@ const publicNavigation = [
 ];
 
 // Role-specific navigation items
-const roleNavigation = {
+const roleNavigation: Record<Role, { name: string; href: string }[]> = {
   NASABAH: [
-    { name: 'Dashboard', href: '/dashboard' },
-    { name: 'Transactions', href: '/transactions' },
-    { name: 'Timbang', href: '/timbang' },
+    { name: 'Browse', href: '/browse' },
+    { name: 'Riwayat Transaksi', href: '/transactions' },
+    { name: 'Timbang Sampah', href: '/timbang' },
+    { name: 'Profil', href: '/profile' },
+  ],
+  PERUSAHAAN: [
+    { name: 'Browse', href: '/browse' },
+    { name: 'Riwayat Transaksi', href: '/transactions' },
+    { name: 'Timbang Sampah', href: '/timbang' },
+    { name: 'Profil', href: '/profile' },
+  ],
+  ADMIN: [
+    { name: 'Dashboard', href: '/admin' },
+    { name: 'Pengguna', href: '/users' },
+    { name: 'Kategori', href: '/admin/categories' },
+    { name: 'Postingan', href: '/admin/posts' },
+    { name: 'Profil', href: '/profile' },
   ],
   PEMERINTAH: [
-    { name: 'Statistics', href: '/statistics' },
-    { name: 'Users', href: '/users' },
-  ],
-  PERUSAHAAN: [{ name: 'Transactions', href: '/transactions' }],
-  ADMIN: [
-    { name: 'Admin Dashboard', href: '/admin' },
-    { name: 'Posts', href: '/admin/posts' },
-    { name: 'Categories', href: '/admin/categories' },
-    { name: 'Users', href: '/admin/users' },
-    { name: 'Statistics', href: '/statistics' },
+    { name: 'Statistik', href: '/statistics' },
+    { name: 'Pengguna', href: '/users' },
+    { name: 'Profil', href: '/profile' },
   ],
 };
 
@@ -55,17 +62,13 @@ export function MainNav() {
   const pathname = usePathname();
   const { user, profile, logout } = useAuthStore();
 
-  // Get the current role's navigation items
-  const getCurrentRoleNavigation = () => {
-    if (!profile?.role) return [];
-    return roleNavigation[profile.role as keyof typeof roleNavigation] || [];
-  };
+  const userRole = profile?.role || 'NASABAH'; // Default to NASABAH for safety, though UI should hide/show based on actual login
+  const roleSpecificNavigation = roleNavigation[userRole] || [];
 
-  // Combine public and role-specific navigation
-  const combinedNavigation = [...publicNavigation];
-  if (profile?.role) {
-    combinedNavigation.push(...getCurrentRoleNavigation());
-  }
+  // Determine navigation items based on authentication state
+  const currentNavigation = profile?.role
+    ? roleSpecificNavigation
+    : publicNavigation;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -80,7 +83,7 @@ export function MainNav() {
             </Link>
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex lg:items-center lg:space-x-6">
-              {combinedNavigation.map((item) => (
+              {currentNavigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -100,7 +103,7 @@ export function MainNav() {
           <div className="flex items-center gap-4">
             <ModeToggle />
 
-            {user ? (
+            {user && profile ? ( // Ensure profile is also loaded
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none">
                   <Avatar className="h-8 w-8 hover:opacity-75 transition">
@@ -150,7 +153,7 @@ export function MainNav() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <nav className="flex flex-col space-y-4 mt-8">
-                  {combinedNavigation.map((item) => (
+                  {currentNavigation.map((item) => (
                     <Link
                       key={item.name}
                       href={item.href}
@@ -164,7 +167,7 @@ export function MainNav() {
                       {item.name}
                     </Link>
                   ))}
-                  {!user && (
+                  {!user && ( // Show login/register only if not logged in
                     <div className="flex flex-col space-y-4 pt-4">
                       <Button variant="outline" asChild>
                         <Link href="/login">Masuk</Link>

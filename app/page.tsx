@@ -10,8 +10,16 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import Image from 'next/image';
+import { redirect } from 'next/navigation';
+import { getUserSession } from '@/lib/auth';
 
-export default function Home() {
+export default async function Home() {
+  const user = await getUserSession();
+
+  if (user) {
+    redirect('/browse');
+  }
+
   return (
     <main className="flex-1">
       {/* Hero Section */}
